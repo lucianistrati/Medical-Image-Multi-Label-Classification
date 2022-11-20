@@ -1,3 +1,4 @@
+from typing import List
 from sklearn.metrics import accuracy_score
 from sklearn.svm import SVC
 
@@ -8,7 +9,13 @@ import cv2
 import os
 
 
-def create_sample_submission(labels_1, labels_2, labels_3):
+def create_sample_submission(labels_1: List = None, labels_2: List = None, labels_3: List = None):
+    if labels_1 is None:
+        labels_1 = np.load(allow_pickle=True, file=f"data/y_pred_for_submission_1.npy")
+    if labels_2 is None:
+        labels_2 = np.load(allow_pickle=True, file=f"data/y_pred_for_submission_2.npy")
+    if labels_3 is None:
+        labels_3 = np.load(allow_pickle=True, file=f"data/y_pred_for_submission_3.npy")
     df = pd.read_csv("data/sample_submission.csv")
     # id,label1,label2,label3
     for i in range(len(df)):
@@ -45,12 +52,19 @@ def train_model(X_train, y_train, X_val, y_val, X_test, label):
     model = SVC(class_weight="balanced")
     print("PRE FIT")
     model.fit(X_train, y_train)
+    del X_train
+    del y_train
     print("POST FIT")
     y_pred = model.predict(X_val)
+    del X_val
     print(accuracy_score(y_pred, y_val))
+    del y_pred
+    del y_val
     y_pred_for_submission = model.predict(X_test)
+    del X_test
+    del model
     np.save(allow_pickle=True, arr=y_pred_for_submission, file=f"data/y_pred_for_submission_{label}.npy")
-    return y_pred
+    return y_pred_for_submission
 
 
 def main():
@@ -68,10 +82,14 @@ def main():
 
     train_images = [train_image.flatten() for train_image in train_images]
     val_images = [val_image.flatten() for val_image in val_images]
+    test_images = [test_image.flatten() for test_image in test_images]
 
-    labels_1 = train_model(train_images, train_labels_1, val_images, val_labels_1, test_images, label="1")
-    labels_2 = train_model(train_images, train_labels_2, val_images, val_labels_2, test_images, label="2")
-    labels_3 = train_model(train_images, train_labels_3, val_images, val_labels_3, test_images, label="3")
+    labels_1 = train_model(X_train=train_images, y_train=train_labels_1, X_val=val_images, y_val=val_labels_1,
+                           X_test=test_images, label="1")
+    labels_2 = train_model(X_train=train_images, y_train=train_labels_2, X_val=val_images, y_val=val_labels_2,
+                           X_test=test_images, label="2")
+    labels_3 = train_model(X_train=train_images, y_train=train_labels_3, X_val=val_images, y_val=val_labels_3,
+                           X_test=test_images, label="3")
 
     create_sample_submission(labels_1, labels_2, labels_3)
 
