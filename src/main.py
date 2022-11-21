@@ -11,7 +11,7 @@ import random
 import cv2
 import os
 
-
+# OBSERVATION ------------ besides the 5000 black images, there is no other duplicate in the dataset
 def create_sample_submission(labels_1: List = None, labels_2: List = None, labels_3: List = None):
     if labels_1 is None:
         labels_1 = np.load(allow_pickle=True, file=f"data/y_pred_for_submission_1.npy")
@@ -99,6 +99,13 @@ def main():
 
     train_val_images = train_images + val_images
 
+    train_images = [tuple(img.flatten().tolist()) for img in train_images if img.sum() !=0]
+    val_images = [tuple(img.flatten().tolist()) for img in val_images if img.sum() != 0]
+    test_images = [tuple(img.flatten().tolist()) for img in test_images if img.sum() != 0]
+    print(len(train_images), len(set(train_images)))
+    print(len(val_images), len(set(val_images)))
+    print(len(test_images), len(set(test_images)))
+    a = 1/0
 
     train_labels, val_labels = load_labels()
     train_val_labels = train_labels + val_labels
