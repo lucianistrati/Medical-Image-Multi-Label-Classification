@@ -88,6 +88,8 @@ def plot_average_image(all_images, all_labels):
 from src.train_neural_net import train_nn
 
 
+# TODO cut second and third dimensions, keep just the first one since they are identical, so that will
+# be a (64, 64, 1) instead of (64, 64, 3)
 def main():
     train_images, val_images, test_images = load_data()
     train_val_images = train_images + val_images
@@ -118,26 +120,28 @@ def main():
     class_weight = get_class_weight(train_labels_1)
     labels_1, logging_metrics_list_1 = train_nn(X_train, y_train, X_test, y_test, model_name, num_classes, X_submission, class_weight)
 
-    np.save(allow_pickle=True, arr=labels_1, file=f"data/y_pred_for_submission_111.npy")
+    np.save(allow_pickle=True, arr=labels_1, file=f"data/y_pred_for_submission_11111.npy")
 
     y_train = np.array(train_labels_2)
     y_test = np.array(val_labels_2)
     class_weight = get_class_weight(train_labels_3)
     labels_2, logging_metrics_list_2 = train_nn(X_train, y_train, X_test, y_test, model_name, num_classes, X_submission, class_weight)
 
-    np.save(allow_pickle=True, arr=labels_2, file=f"data/y_pred_for_submission_222.npy")
+    np.save(allow_pickle=True, arr=labels_2, file=f"data/y_pred_for_submission_22222.npy")
 
     y_train = np.array(train_labels_3)
     y_test = np.array(val_labels_3)
     class_weight = get_class_weight(train_labels_3)
     labels_3, logging_metrics_list_3 = train_nn(X_train, y_train, X_test, y_test, model_name, num_classes, X_submission, class_weight)
 
-    np.save(allow_pickle=True, arr=labels_3, file=f"data/y_pred_for_submission_333.npy")
+    np.save(allow_pickle=True, arr=labels_3, file=f"data/y_pred_for_submission_33333.npy")
 
     create_sample_submission(labels_1, labels_2, labels_3)
 
-    res = (float(logging_metrics_list_1[0][1]) + float(logging_metrics_list_3[0][1]) + float(logging_metrics_list_3[0][1])) / 3
-    print("Final F1:", res)
+    if logging_metrics_list_1 is not None and logging_metrics_list_2 is not None and logging_metrics_list_3 is not None:
+        res = (float(logging_metrics_list_1[0][1]) + float(logging_metrics_list_3[0][1]) +
+               float(logging_metrics_list_3[0][1])) / 3
+        print("Final F1:", res)
 
     # train_images = [train_image.flatten() for train_image in train_images]
     # val_images = [val_image.flatten() for val_image in val_images]

@@ -24,7 +24,14 @@
             </Attribute>
           </value>
         </entry>
-        <entry key="/good_submission.csv">
+        <entry key="/good_submission_small_cnn_0.87.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/good_submission_small_cnn_0.876.csv">
           <value>
             <Attribute>
               <option name="separator" value="," />

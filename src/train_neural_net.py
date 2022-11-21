@@ -362,12 +362,12 @@ def train_nn(X_train, y_train, X_test, y_test, model_name, num_classes, X_submis
     # filters = [128, 64]
     # classifier = get_model_design_1(filters, X_train[0].shape)
     classifier = tf.keras.models.Sequential()
-    classifier.add(tf.keras.layers.Conv2D(96, (3, 3), activation='relu', input_shape=(64, 64, 3)))
+    classifier.add(tf.keras.layers.Conv2D(256, (3, 3), activation='relu', input_shape=(64, 64, 3)))
     classifier.add(tf.keras.layers.MaxPool2D(3, 3))
-    classifier.add(tf.keras.layers.Conv2D(48, (2, 2), activation='relu'))
-    classifier.add(tf.keras.layers.MaxPool2D(2, 2))
+    # classifier.add(tf.keras.layers.Conv2D(48, (2, 2), activation='relu'))
+    # classifier.add(tf.keras.layers.MaxPool2D(2, 2))
     classifier.add(tf.keras.layers.Flatten())
-    classifier.add(tf.keras.layers.Dense(128, activation='relu'))
+    classifier.add(tf.keras.layers.Dense(256, activation='relu'))
     # # classifier.add(tf.keras.layers.Dense(256, input_shape=X_test[0].shape, activation="relu"))
     # # classifier.add(tf.keras.layers.Dense(256, activation="relu"))
     classifier.add(tf.keras.layers.Dense(num_classes, activation=activation_fn))
@@ -383,43 +383,83 @@ def train_nn(X_train, y_train, X_test, y_test, model_name, num_classes, X_submis
     classifier.compile(optimizer=adam_opt, loss=loss_function,
                        metrics=[metrics_function])
 
+    validation_option = [None, "split", "data"][0]
+    validation_split = 0.1
+    validation_data = (X_test, y_test)
+
     if class_weight is not None:
-        print(type(X_train), X_train[0].shape)
-        # a = 1/0
-        history = classifier.fit(X_train,
-                                 y_train,
-                                 epochs=n_epochs,
-                                 verbose=2,
-                                 class_weight=class_weight,
-                                 callbacks=[early_stopping, lr_schedule])
+        if validation_option is None:
+            history = classifier.fit(X_train,
+                                     y_train,
+                                     epochs=n_epochs,
+                                     verbose=2,
+                                     class_weight=class_weight,
+                                     callbacks=[early_stopping, lr_schedule])
+        elif validation_option is "split":
+            history = classifier.fit(X_train,
+                                     y_train,
+                                     epochs=n_epochs,
+                                     verbose=2,
+                                     class_weight=class_weight,
+                                     callbacks=[early_stopping, lr_schedule],
+                                     validation_split=validation_split)
+        elif validation_option is "data":
+            history = classifier.fit(X_train,
+                                     y_train,
+                                     epochs=n_epochs,
+                                     verbose=2,
+                                     class_weight=class_weight,
+                                     callbacks=[early_stopping, lr_schedule],
+                                     validation_data=validation_data)
+        else:
+            raise Exception(f"Wrong validation_option: {validation_option}")
     else:
-        history = classifier.fit(X_train,
-                                 y_train,
-                                 epochs=n_epochs,
-                                 verbose=2,
-                                 callbacks=[early_stopping, lr_schedule])
+        if validation_option is None:
+            history = classifier.fit(X_train,
+                                     y_train,
+                                     epochs=n_epochs,
+                                     verbose=2,
+                                     callbacks=[early_stopping, lr_schedule])
+        elif validation_option is "split":
+            history = classifier.fit(X_train,
+                                     y_train,
+                                     epochs=n_epochs,
+                                     verbose=2,
+                                     callbacks=[early_stopping, lr_schedule],
+                                     validation_data=validation_data)
+        elif validation_option is "data":
+            history = classifier.fit(X_train,
+                                     y_train,
+                                     epochs=n_epochs,
+                                     verbose=2,
+                                     callbacks=[early_stopping, lr_schedule],
+                                     validation_split=validation_split)
+        else:
+            raise Exception(f"Wrong validation_option: {validation_option}")
 
-    y_pred = classifier.predict(X_test)
+    logging_metrics_list = None
 
-    print(classifier.summary())
+    if validation_option is None:
+        y_pred = classifier.predict(X_test)
 
-    if num_classes > 1:
-        y_test = np.argmax(y_test, axis=-1)
-        y_pred = np.argmax(y_pred, axis=-1)
+        print(classifier.summary())
 
-    if num_classes > 1:
-        # plot_heatmap(y_pred,y_test)
-        logging_metrics_list = get_classif_perf_metrics(y_test,
-                                                        y_pred,
-                                                        model_name=model_name, num_classes=num_classes)
-    else:
-        logging_metrics_list = get_regress_perf_metrics(y_test,
-                                                        y_pred,
-                                                        model_name=model_name)
+        if num_classes > 1:
+            y_test = np.argmax(y_test, axis=-1)
+            y_pred = np.argmax(y_pred, axis=-1)
 
-    print(logging_metrics_list)
+        if num_classes > 1:
+            logging_metrics_list = get_classif_perf_metrics(y_test,
+                                                            y_pred,
+                                                            model_name=model_name, num_classes=num_classes)
+        else:
+            logging_metrics_list = get_regress_perf_metrics(y_test,
+                                                            y_pred,
+                                                            model_name=model_name)
 
-    plot_multiple_metrics(history)
+        print(logging_metrics_list)
+
+        plot_multiple_metrics(history)
 
     y_submission = classifier.predict(X_submission)
 
