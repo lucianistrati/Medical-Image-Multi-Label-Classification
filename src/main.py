@@ -2,6 +2,7 @@ from typing import List
 from sklearn.metrics import accuracy_score, f1_score
 from sklearn.svm import SVC
 from matplotlib import pyplot as plt
+from collections import Counter
 
 import pandas as pd
 import numpy as np
@@ -32,7 +33,8 @@ def load_images_from_folder(folder_path: str):
     for file in sorted(os.listdir(folder_path)):
         filepath = os.path.join(folder_path, file)
         image = cv2.imread(filepath)
-        images.append(image)
+        one_channel_image = image[:, :, 0]
+        images.append(one_channel_image)
     return images
 
 
@@ -92,8 +94,12 @@ from src.train_neural_net import train_nn
 # be a (64, 64, 1) instead of (64, 64, 3)
 def main():
     train_images, val_images, test_images = load_data()
+
     train_val_images = train_images + val_images
+
+
     train_labels, val_labels = load_labels()
+    train_val_labels = train_labels + val_labels
 
     train_labels_1, train_labels_2, train_labels_3 = train_labels["label1"].to_list(), \
                                                      train_labels["label2"].to_list(), \
@@ -103,7 +109,59 @@ def main():
                                                val_labels["label2"].to_list(), \
                                                val_labels["label3"].to_list()
 
-    from collections import Counter
+    train_val_labels_1, train_val_labels_2, train_val_labels_3 = train_labels_1 + val_labels_1, \
+                                                                 train_labels_2 + val_labels_2, \
+                                                                 train_labels_3 + val_labels_3
+
+    bad_labelled_1 = {0: 0, 1: 0}
+    bad_labelled_2 = {0: 0, 1: 0}
+    bad_labelled_3 = {0: 0, 1: 0}
+
+    for (img, l_1, l_2, l_3) in zip(train_val_images, train_val_labels_1, train_val_labels_2, train_val_labels_3):
+        if img.sum() == 0:
+            # print(l_1, l_2, l_3)
+            if l_1 == 0:
+                bad_labelled_1[0] += 1
+            elif l_1 == 1:
+                bad_labelled_1[1] += 1
+            else:
+                raise Exception("1")
+
+            if l_2 == 0:
+                bad_labelled_2[0] += 1
+            elif l_2 == 1:
+                bad_labelled_2[1] += 1
+            else:
+                raise Exception("2")
+
+            if l_3 == 0:
+                bad_labelled_3[0] += 1
+            elif l_3 == 1:
+                bad_labelled_3[1] += 1
+            else:
+                raise Exception("3")
+
+    print("Bad labelled black images:")
+    print("Feature no. 1: ", bad_labelled_1)
+    print("Feature no. 2: ", bad_labelled_2)
+    print("Feature no. 3: ", bad_labelled_3)
+
+    """
+    if black -> 0,0,0
+    else: sample weights on training for non black images and 
+    """
+    # TOOD make a set out of all the black images and give them the 0 label
+    # from tqdm import tqdm
+    # in_train_and_val = 0
+    # for img in tqdm(val_images):
+    #     if img.sum() != 0:
+    #         for img_ in test_images:
+    #             # if img_.sum() != 0:
+    #             if np.array_equal(img, img_):
+    #                 in_train_and_val += 1
+    #
+    # print("Common images in train and val: ", in_train_and_val)
+    # a = 1 / 0
 
     def get_class_weight(labels):
         cnt = Counter(labels)

@@ -334,6 +334,10 @@ def get_model_design_1(filters: list, input_shape: tuple):
     return model
 
 
+def normalize_img(img):
+    return img / 255
+
+
 def train_nn(X_train, y_train, X_test, y_test, model_name, num_classes, X_submission=None, class_weight=None):
     early_stopping = EarlyStopping(
         patience=5,  # how many epochs to wait before stopping
@@ -347,8 +351,8 @@ def train_nn(X_train, y_train, X_test, y_test, model_name, num_classes, X_submis
         min_lr=0.001,
     )
 
-    n_epochs = 10
-    learning_rate = 1e-3
+    n_epochs = 10  # TODO adapt
+    learning_rate = 1e-3  # TODO adapt
 
     if num_classes > 1:
         y_train = tf.keras.utils.to_categorical(y_train, num_classes)
@@ -356,6 +360,7 @@ def train_nn(X_train, y_train, X_test, y_test, model_name, num_classes, X_submis
 
     if num_classes > 1:
         activation_fn = "softmax"
+        # TODO adapt, maybe sigmoid instead of softmax since there are two classes and is not multi class
     else:
         activation_fn = "linear"
 
@@ -372,10 +377,12 @@ def train_nn(X_train, y_train, X_test, y_test, model_name, num_classes, X_submis
     # # classifier.add(tf.keras.layers.Dense(256, activation="relu"))
     classifier.add(tf.keras.layers.Dense(num_classes, activation=activation_fn))
 
-    adam_opt = tf.keras.optimizers.Adam(lr=learning_rate)
+    adam_opt = tf.keras.optimizers.Adam(lr=learning_rate)  # TODO adapt, maybe SGD or idk smth else
     if num_classes > 1:
         loss_function = tf.keras.losses.CategoricalCrossentropy()
+        # TODO adapt, maybe bicategorical crossentropy or smth
         metrics_function = 'accuracy'
+        # TODO change to f1 score instead of accuracy
     else:
         loss_function = tf.keras.losses.MeanSquaredError()
         metrics_function = 'mae'
