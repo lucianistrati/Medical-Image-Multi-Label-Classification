@@ -33,7 +33,9 @@ def load_images_from_folder(folder_path: str):
     for file in sorted(os.listdir(folder_path)):
         filepath = os.path.join(folder_path, file)
         image = cv2.imread(filepath)
-        one_channel_image = image[:, :, 0]
+        one_channel_image = np.reshape(image[:, :, 0], (64, 64, 1))
+        # print(one_channel_image.shape)
+        # a = 1/0
         images.append(one_channel_image)
     return images
 
@@ -212,6 +214,13 @@ def main():
     # labels_3 = train_model(X_train=train_images, y_train=train_labels_3, X_val=val_images, y_val=val_labels_3,
     #                        X_test=test_images, label="32")
 
+
+"""
+TODO: ideas for neural nets:
+https://towardsdatascience.com/train-a-neural-network-to-detect-breast-mri-tumors-with-pytorch-250a02be7777
+https://www.projectpro.io/article/deep-learning-for-image-classification-in-python-with-cnn/418
+https://ecode.dev/cnn-for-medical-imaging-using-tensorflow-2/
+"""
 
 if __name__ == '__main__':
     main()

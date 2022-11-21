@@ -338,7 +338,7 @@ def normalize_img(img):
     return img / 255
 
 
-def train_nn(X_train, y_train, X_test, y_test, model_name, num_classes, X_submission=None, class_weight=None):
+def train_nn(X_train, y_train, X_test, y_test, model_name, num_classes=2, X_submission=None, class_weight=None):
     early_stopping = EarlyStopping(
         patience=5,  # how many epochs to wait before stopping
         min_delta=0.001,  # minimium amount of change to count as an improvement
@@ -351,23 +351,28 @@ def train_nn(X_train, y_train, X_test, y_test, model_name, num_classes, X_submis
         min_lr=0.001,
     )
 
+    # TODO try to train in a multi-labels classif way with keras, or pytorch if not possible with keras, perhaps it
+    # will learn better in this multimodal format (since the classification might be related one with another
+    # oooor, maybe do: first classification, then use that prediction for the second classification and then use the
+    # first and the third to also produce the fourth
+    # try to visualize data in 2D/3D
+
     n_epochs = 10  # TODO adapt
     learning_rate = 1e-3  # TODO adapt
 
-    if num_classes > 1:
-        y_train = tf.keras.utils.to_categorical(y_train, num_classes)
-        y_test = tf.keras.utils.to_categorical(y_test, num_classes)
+    # if num_classes > 1:
+    y_train = tf.keras.utils.to_categorical(y_train, num_classes)
+    y_test = tf.keras.utils.to_categorical(y_test, num_classes)
 
-    if num_classes > 1:
-        activation_fn = "softmax"
-        # TODO adapt, maybe sigmoid instead of softmax since there are two classes and is not multi class
-    else:
-        activation_fn = "linear"
+    activation_fn = "linear"
+    activation_fn = "softmax"
+    activation_fn = "sigmoid"
+    # TODO adapt, maybe sigmoid instead of softmax since there are two classes and is not multi class
 
     # filters = [128, 64]
     # classifier = get_model_design_1(filters, X_train[0].shape)
     classifier = tf.keras.models.Sequential()
-    classifier.add(tf.keras.layers.Conv2D(256, (3, 3), activation='relu', input_shape=(64, 64, 3)))
+    classifier.add(tf.keras.layers.Conv2D(256, (3, 3), activation='relu', input_shape=(64, 64, 1)))
     classifier.add(tf.keras.layers.MaxPool2D(3, 3))
     # classifier.add(tf.keras.layers.Conv2D(48, (2, 2), activation='relu'))
     # classifier.add(tf.keras.layers.MaxPool2D(2, 2))
@@ -377,22 +382,30 @@ def train_nn(X_train, y_train, X_test, y_test, model_name, num_classes, X_submis
     # # classifier.add(tf.keras.layers.Dense(256, activation="relu"))
     classifier.add(tf.keras.layers.Dense(num_classes, activation=activation_fn))
 
-    adam_opt = tf.keras.optimizers.Adam(lr=learning_rate)  # TODO adapt, maybe SGD or idk smth else
-    if num_classes > 1:
-        loss_function = tf.keras.losses.CategoricalCrossentropy()
-        # TODO adapt, maybe bicategorical crossentropy or smth
-        metrics_function = 'accuracy'
-        # TODO change to f1 score instead of accuracy
-    else:
-        loss_function = tf.keras.losses.MeanSquaredError()
-        metrics_function = 'mae'
+    import tensorflow_addons as tfa
 
-    classifier.compile(optimizer=adam_opt, loss=loss_function,
-                       metrics=[metrics_function])
+    adam_opt = tf.keras.optimizers.Adam(lr=learning_rate)
+    sgd_opt = tf.keras.optimizers.SGD(lr=learning_rate)
+    opt = adam_opt
 
-    validation_option = [None, "split", "data"][0]
-    validation_split = 0.1
+    # loss_function = tf.keras.losses.CategoricalCrossentropy()
+    loss_function = tf.keras.losses.BinaryCrossentropy()
+
+    # metrics_function = 'accuracy'
+    metrics_function = tfa.metrics.F1Score(num_classes=2)
+
+    classifier.compile(optimizer=opt, loss=loss_function, metrics=[metrics_function])
+
+    validation_option = [None, "split", "data"][1]
+    validation_split = 0.1  # 0.1 -> 1.5k out of 15k OR 0.07 -> 1k out of 15k
+    # (we basically win 1500 new datapoints or 2000 new datapoints or alltogether 3000 datapoints)
     validation_data = (X_test, y_test)
+
+    if validation_option == "split":
+        X_train = np.concatenate((X_train, X_test))
+        y_train = np.concatenate((y_train, y_test))
+
+    print(X_train.shape, y_train.shape)
 
     if class_weight is not None:
         if validation_option is None:
