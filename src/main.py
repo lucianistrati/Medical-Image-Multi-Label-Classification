@@ -11,6 +11,23 @@ import random
 import cv2
 import os
 
+
+def efficient_net():
+    # models can be build with Keras or Tensorflow frameworks
+    # use keras and tfkeras modules respectively
+    # efficientnet.keras / efficientnet.tfkeras
+    import efficientnet.keras as efn
+
+    model = efn.EfficientNetB0(weights='imagenet')  # or weights='noisy-student'
+
+    # model use some custom objects, so before loading saved model
+    # import module your network was build with
+    # e.g. import efficientnet.keras / import efficientnet.tfkeras
+    import efficientnet.tfkeras
+    from tensorflow.keras.models import load_model
+    model = load_model('path/to/model.h5')
+
+
 # OBSERVATION ------------ besides the 5000 black images, there is no other duplicate in the dataset
 def create_sample_submission(labels_1: List = None, labels_2: List = None, labels_3: List = None):
     if labels_1 is None:
@@ -99,13 +116,14 @@ def main():
 
     train_val_images = train_images + val_images
 
-    train_images = [tuple(img.flatten().tolist()) for img in train_images if img.sum() !=0]
-    val_images = [tuple(img.flatten().tolist()) for img in val_images if img.sum() != 0]
-    test_images = [tuple(img.flatten().tolist()) for img in test_images if img.sum() != 0]
-    print(len(train_images), len(set(train_images)))
-    print(len(val_images), len(set(val_images)))
-    print(len(test_images), len(set(test_images)))
-    a = 1/0
+    # train_images = [tuple(img.flatten().tolist()) for img in train_images if img.sum() !=0]
+    # val_images = [tuple(img.flatten().tolist()) for img in val_images if img.sum() != 0]
+    # test_images = [tuple(img.flatten().tolist()) for img in test_images if img.sum() != 0]
+    #
+    # print(len(train_images), len(set(train_images)))
+    # print(len(val_images), len(set(val_images)))
+    # print(len(test_images), len(set(test_images)))
+    # a = 1/0
 
     train_labels, val_labels = load_labels()
     train_val_labels = train_labels + val_labels
@@ -118,42 +136,76 @@ def main():
                                                val_labels["label2"].to_list(), \
                                                val_labels["label3"].to_list()
 
-    train_val_labels_1, train_val_labels_2, train_val_labels_3 = train_labels_1 + val_labels_1, \
-                                                                 train_labels_2 + val_labels_2, \
-                                                                 train_labels_3 + val_labels_3
+    def keep_one_black_image(images, labels_1, labels_2, labels_3):
+        first_time = True
+        to_remove = []
+        first_idx = None
+        for i, (img, label) in enumerate(zip(images, labels_1)):
+            img_sum = img.sum()
+            if first_time is False and img_sum == 0:
+                to_remove.append(i)
+                images.pop(i)
+                labels_1.pop(i)
+                labels_2.pop(i)
+                labels_3.pop(i)
+            if img_sum == 0:
+                first_idx = i
+                first_time = False
+        labels_1[first_idx] = 0
+        labels_2[first_idx] = 0
+        labels_3[first_idx] = 0
+        # for idx in to_remove:
+        #     images.pop(idx)
+        #     labels.pop(idx)
+        return images, labels_1, labels_2, labels_3
 
-    bad_labelled_1 = {0: 0, 1: 0}
-    bad_labelled_2 = {0: 0, 1: 0}
-    bad_labelled_3 = {0: 0, 1: 0}
+    train_images, train_labels_1, train_labels_2, train_labels_3 = keep_one_black_image(train_images, train_labels_1, train_labels_2, train_labels_3)
+    # train_images, train_labels_2 = keep_one_black_image(train_images, train_labels_2)
+    # train_images, train_labels_3 = keep_one_black_image(train_images, train_labels_3)
+    # train_images, train_labels_2 = keep_one_black_image(train_images, train_labels_2)
+    # train_images, train_labels_1 = keep_one_black_image(train_images, train_labels_1)
 
-    for (img, l_1, l_2, l_3) in zip(train_val_images, train_val_labels_1, train_val_labels_2, train_val_labels_3):
-        if img.sum() == 0:
-            # print(l_1, l_2, l_3)
-            if l_1 == 0:
-                bad_labelled_1[0] += 1
-            elif l_1 == 1:
-                bad_labelled_1[1] += 1
-            else:
-                raise Exception("1")
+    val_images, val_labels_1, val_labels_2, val_labels_3 = keep_one_black_image(val_images, val_labels_1, val_labels_2, val_labels_3)
+    # val_images, val_labels_1 = keep_one_black_image(val_images, val_labels_1)
+    # val_images, val_labels_2 = keep_one_black_image(val_images, val_labels_2)
+    # val_images, val_labels_3 = keep_one_black_image(val_images, val_labels_3)
 
-            if l_2 == 0:
-                bad_labelled_2[0] += 1
-            elif l_2 == 1:
-                bad_labelled_2[1] += 1
-            else:
-                raise Exception("2")
+    # train_val_labels_1, train_val_labels_2, train_val_labels_3 = train_labels_1 + val_labels_1, \
+    #                                                              train_labels_2 + val_labels_2, \
+    #                                                              train_labels_3 + val_labels_3
 
-            if l_3 == 0:
-                bad_labelled_3[0] += 1
-            elif l_3 == 1:
-                bad_labelled_3[1] += 1
-            else:
-                raise Exception("3")
-
-    print("Bad labelled black images:")
-    print("Feature no. 1: ", bad_labelled_1)
-    print("Feature no. 2: ", bad_labelled_2)
-    print("Feature no. 3: ", bad_labelled_3)
+    # bad_labelled_1 = {0: 0, 1: 0}
+    # bad_labelled_2 = {0: 0, 1: 0}
+    # bad_labelled_3 = {0: 0, 1: 0}
+    #
+    # for (img, l_1, l_2, l_3) in zip(train_val_images, train_val_labels_1, train_val_labels_2, train_val_labels_3):
+    #     if img.sum() == 0:
+    #         # print(l_1, l_2, l_3)
+    #         if l_1 == 0:
+    #             bad_labelled_1[0] += 1
+    #         elif l_1 == 1:
+    #             bad_labelled_1[1] += 1
+    #         else:
+    #             raise Exception("1")
+    #
+    #         if l_2 == 0:
+    #             bad_labelled_2[0] += 1
+    #         elif l_2 == 1:
+    #             bad_labelled_2[1] += 1
+    #         else:
+    #             raise Exception("2")
+    #
+    #         if l_3 == 0:
+    #             bad_labelled_3[0] += 1
+    #         elif l_3 == 1:
+    #             bad_labelled_3[1] += 1
+    #         else:
+    #             raise Exception("3")
+    #
+    # print("Bad labelled black images:")
+    # print("Feature no. 1: ", bad_labelled_1)
+    # print("Feature no. 2: ", bad_labelled_2)
+    # print("Feature no. 3: ", bad_labelled_3)
 
     """
     if black -> 0,0,0
@@ -182,45 +234,46 @@ def main():
     num_classes = 2
     model_name = "vanilla"
 
-    y_train = np.array(train_labels_1)
-    y_test = np.array(val_labels_1)
-    class_weight = get_class_weight(train_labels_1)
-    labels_1, logging_metrics_list_1 = train_nn(X_train, y_train, X_test, y_test, model_name, num_classes, X_submission, class_weight)
+    # y_train = np.array(train_labels_1)
+    # y_test = np.array(val_labels_1)
+    # class_weight = get_class_weight(train_labels_1)
+    # labels_1, logging_metrics_list_1 = train_nn(X_train, y_train, X_test, y_test, model_name, num_classes, X_submission, class_weight)
+    #
+    # np.save(allow_pickle=True, arr=labels_1, file=f"data/y_pred_for_submission_11111.npy")
+    #
+    # y_train = np.array(train_labels_2)
+    # y_test = np.array(val_labels_2)
+    # class_weight = get_class_weight(train_labels_3)
+    # labels_2, logging_metrics_list_2 = train_nn(X_train, y_train, X_test, y_test, model_name, num_classes, X_submission, class_weight)
+    #
+    # np.save(allow_pickle=True, arr=labels_2, file=f"data/y_pred_for_submission_22222.npy")
+    #
+    # y_train = np.array(train_labels_3)
+    # y_test = np.array(val_labels_3)
+    # class_weight = get_class_weight(train_labels_3)
+    # labels_3, logging_metrics_list_3 = train_nn(X_train, y_train, X_test, y_test, model_name, num_classes, X_submission, class_weight)
+    #
+    # np.save(allow_pickle=True, arr=labels_3, file=f"data/y_pred_for_submission_33333.npy")
+    #
+    # create_sample_submission(labels_1, labels_2, labels_3)
+    #
+    # if logging_metrics_list_1 is not None and logging_metrics_list_2 is not None and logging_metrics_list_3 is not None:
+    #     res = (float(logging_metrics_list_1[0][1]) + float(logging_metrics_list_3[0][1]) +
+    #            float(logging_metrics_list_3[0][1])) / 3
+    #     print("Final F1:", res)
 
-    np.save(allow_pickle=True, arr=labels_1, file=f"data/y_pred_for_submission_11111.npy")
+    train_images = [train_image.flatten() for train_image in train_images]
+    val_images = [val_image.flatten() for val_image in val_images]
+    test_images = [test_image.flatten() for test_image in test_images]
 
-    y_train = np.array(train_labels_2)
-    y_test = np.array(val_labels_2)
-    class_weight = get_class_weight(train_labels_3)
-    labels_2, logging_metrics_list_2 = train_nn(X_train, y_train, X_test, y_test, model_name, num_classes, X_submission, class_weight)
-
-    np.save(allow_pickle=True, arr=labels_2, file=f"data/y_pred_for_submission_22222.npy")
-
-    y_train = np.array(train_labels_3)
-    y_test = np.array(val_labels_3)
-    class_weight = get_class_weight(train_labels_3)
-    labels_3, logging_metrics_list_3 = train_nn(X_train, y_train, X_test, y_test, model_name, num_classes, X_submission, class_weight)
-
-    np.save(allow_pickle=True, arr=labels_3, file=f"data/y_pred_for_submission_33333.npy")
+    labels_1 = train_model(X_train=train_images, y_train=train_labels_1, X_val=val_images, y_val=val_labels_1,
+                           X_test=test_images, label="122")
+    labels_2 = train_model(X_train=train_images, y_train=train_labels_2, X_val=val_images, y_val=val_labels_2,
+                           X_test=test_images, label="222")
+    labels_3 = train_model(X_train=train_images, y_train=train_labels_3, X_val=val_images, y_val=val_labels_3,
+                           X_test=test_images, label="322")
 
     create_sample_submission(labels_1, labels_2, labels_3)
-
-    if logging_metrics_list_1 is not None and logging_metrics_list_2 is not None and logging_metrics_list_3 is not None:
-        res = (float(logging_metrics_list_1[0][1]) + float(logging_metrics_list_3[0][1]) +
-               float(logging_metrics_list_3[0][1])) / 3
-        print("Final F1:", res)
-
-    # train_images = [train_image.flatten() for train_image in train_images]
-    # val_images = [val_image.flatten() for val_image in val_images]
-    # test_images = [test_image.flatten() for test_image in test_images]
-
-    # labels_1 = train_model(X_train=train_images, y_train=train_labels_1, X_val=val_images, y_val=val_labels_1,
-    #                        X_test=test_images, label="12")
-    # labels_2 = train_model(X_train=train_images, y_train=train_labels_2, X_val=val_images, y_val=val_labels_2,
-    #                        X_test=test_images, label="22")
-    # labels_3 = train_model(X_train=train_images, y_train=train_labels_3, X_val=val_images, y_val=val_labels_3,
-    #                        X_test=test_images, label="32")
-
 
 """
 TODO: ideas for neural nets:
