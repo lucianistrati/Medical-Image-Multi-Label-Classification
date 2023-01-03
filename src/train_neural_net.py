@@ -4,8 +4,19 @@ import numpy as np
 import numpy as np
 import random
 import tensorflow as tf
+import tensorflow_addons as tfa
+import matplotlib.pyplot as plt
+import pdb
+# from tensorflow.data import Dataset
+from sklearn.metrics import f1_score, precision_score, recall_score, \
+    mean_squared_error, mean_absolute_error, r2_score, average_precision_score
+from sklearn.metrics import confusion_matrix, accuracy_score, \
+    classification_report
+from sklearn.utils import check_array
+from sklearn.preprocessing import StandardScaler
+import numpy as np
+from sklearn.metrics import matthews_corrcoef
 from sklearn.metrics import confusion_matrix, accuracy_score, classification_report
-
 from sklearn.metrics import f1_score, precision_score, recall_score, \
     mean_squared_error, mean_absolute_error, r2_score
 from sklearn.model_selection import train_test_split
@@ -16,22 +27,6 @@ from statistics import mean
 def empty_classif_loggings():
     return [['F1', 0.0], ['Accuracy', 0.0], ['Normalized_confusion_matrix',
                                              0.0]]
-
-
-def empty_regress_loggings():
-    return [['R2', 0.0], ['MAPE', 0.0], ['MAE', 0.0], ['MSE', 0.0], ['MDA',
-                                                                     0.0],
-            ['MAD', 0.0]]
-
-
-from sklearn.metrics import f1_score, precision_score, recall_score, \
-    mean_squared_error, mean_absolute_error, r2_score
-from sklearn.metrics import confusion_matrix, accuracy_score, \
-    classification_report
-from sklearn.utils import check_array
-from sklearn.preprocessing import StandardScaler
-import numpy as np
-from sklearn.metrics import matthews_corrcoef
 
 
 def mean_absolute_percentage_error(y_true, y_pred):
@@ -91,6 +86,8 @@ def get_classif_perf_metrics(y_test, y_pred, model_name="",
                 logging_metrics_list[i][1] = str(recall_score(y_test, y_pred))
             elif logging_metrics_list[i][0] == 'F1':
                 logging_metrics_list[i][1] = str(f1_score(y_test, y_pred))
+            elif logging_metrics_list[i][0] == "average_precision_score":
+                logging_metrics_list[i][1] = str(average_precision_score(y_test, y_pred))
 
         print("Accuracy: " + str(accuracy_score(y_test, y_pred)))
         print("Precision: " + str(precision_score(y_test, y_pred)))
@@ -125,46 +122,6 @@ def get_classif_perf_metrics(y_test, y_pred, model_name="",
 def mda(actual: np.ndarray, predicted: np.ndarray):
     """ Mean Directional Accuracy """
     return np.mean((np.sign(actual[1:] - actual[:-1]) == np.sign(predicted[1:] - predicted[:-1])).astype(int))
-
-
-def get_regress_perf_metrics(y_test, y_pred, model_name="",
-                             target_feature="",
-                             logging_metrics_list=empty_regress_loggings(),
-                             visualize_metrics=False):
-    if visualize_metrics:
-        print("For " + model_name + " regression algorithm the following "
-                                    "performance metrics were determined:")
-
-    if target_feature == 'all':
-        y_test = y_test.flatten()
-        y_pred = y_pred.flatten()
-
-    for i in range(len(logging_metrics_list)):
-        if logging_metrics_list[i][0] == "MSE":
-            logging_metrics_list[i][1] = str(mean_squared_error(y_test, y_pred))
-        elif logging_metrics_list[i][0] == "MAE":
-            logging_metrics_list[i][1] = str(mean_absolute_error(y_test,
-                                                                 y_pred))
-        elif logging_metrics_list[i][0] == "R2":
-            logging_metrics_list[i][1] = str(r2_score(y_test, y_pred))
-        elif logging_metrics_list[i][0] == "MAPE":
-            logging_metrics_list[i][1] = str(mape(y_test, y_pred))
-        elif logging_metrics_list[i][0] == "MDA":
-            logging_metrics_list[i][1] = str(mda(y_test, y_pred))
-        elif logging_metrics_list[i][0] == "MAD":
-            logging_metrics_list[i][1] = 0.0
-
-    if visualize_metrics:
-        print("MSE: ", mean_squared_error(y_test, y_pred))
-        print("MAE: ", mean_absolute_error(y_test, y_pred))
-        print("R squared score: ", r2_score(y_test, y_pred))
-        print("Mean absolute percentage error:", mape(y_test, y_pred))
-        try:
-            print("Mean directional accuracy:", mda(y_test, y_pred))
-        except TypeError:
-            print("Type error", model_name)
-
-    return logging_metrics_list
 
 
 def get_classif_perf_metrics(y_test, y_pred, model_name="",
@@ -206,8 +163,6 @@ def get_classif_perf_metrics(y_test, y_pred, model_name="",
             elif logging_metrics_list[i][0] == 'Recall':
                 logging_metrics_list[i][1] = str(recall_score(y_test, y_pred))
             elif logging_metrics_list[i][0] == 'F1':
-                # import pdb
-                # pdb.set_trace()
                 logging_metrics_list[i][1] = str(f1_score(y_test, y_pred,
                                                           average='weighted'))
             elif logging_metrics_list[i][0] == 'Classification_report':
@@ -244,9 +199,6 @@ def get_classif_perf_metrics(y_test, y_pred, model_name="",
     return logging_metrics_list
 
 
-import matplotlib.pyplot as plt
-
-
 def plot_loss_and_acc(history):
     plt.plot(history.history["acc"], label="train")
     plt.plot(history.history["val_acc"], label="test")
@@ -268,8 +220,6 @@ def plot_loss_and_acc(history):
 
 
 def plot_multiple_metrics(history, model_name=""):
-    # import pdb
-    # pdb.set_trace()
     keys = list(history.history.keys())
     colors = ['g', 'b', 'r', 'y', 'p']
     for i in range(len(keys)):
@@ -313,6 +263,44 @@ def plot_metric(history, metric_name, model_name):
 #     test_ds = Dataset.from_tensor_slices((x_test, y_test))
 #
 #     return train_ds, validation_ds, test_ds
+
+
+def get_conv_classifier(num_classes, activation_fn):
+    classifier = tf.keras.models.Sequential()
+
+    classifier.add(tf.keras.layers.Conv2D(256, (3, 3), activation='relu', input_shape=(64, 64, 1)))
+    classifier.add(tf.keras.layers.MaxPool2D(3, 3))
+    # classifier.add(tf.keras.layers.Conv2D(48, (2, 2), activation='relu'))
+    # classifier.add(tf.keras.layers.MaxPool2D(2, 2))
+    classifier.add(tf.keras.layers.Flatten())
+    classifier.add(tf.keras.layers.Dense(256, activation='relu'))
+    # # classifier.add(tf.keras.layers.Dense(256, input_shape=X_test[0].shape, activation="relu"))
+    # # classifier.add(tf.keras.layers.Dense(256, activation="relu"))
+    classifier.add(tf.keras.layers.Dense(num_classes, activation=activation_fn))
+
+    return classifier
+
+
+def get_fully_connected_classifier(num_classes, activation_fn):
+    classifier = tf.keras.models.Sequential()
+    classifier.add(tf.keras.layers.Dense(256, activation='relu', input_shape=(64, 64, 1)))
+    classifier.add(tf.keras.layers.Dense(256, activation='relu'))
+    # # classifier.add(tf.keras.layers.Dense(256, input_shape=X_test[0].shape, activation="relu"))
+    # # classifier.add(tf.keras.layers.Dense(256, activation="relu"))
+    classifier.add(tf.keras.layers.Dense(num_classes, activation=activation_fn))
+
+    return classifier
+
+
+def get_recurrent_classifier(num_classes, activation_fn):
+    classifier = tf.keras.models.Sequential()
+    classifier.add(tf.keras.layers.Conv2D(256, (3, 3), activation='relu', input_shape=(64, 64, 1)))
+    classifier.add(tf.keras.layers.MaxPool2D(3, 3))
+    classifier.add(tf.keras.layers.Flatten())
+    classifier.add(tf.keras.layers.Dense(256, activation='relu'))
+    classifier.add(tf.keras.layers.Dense(num_classes, activation=activation_fn))
+
+    return classifier
 
 
 def get_model_design_1(filters: list, input_shape: tuple):
@@ -371,18 +359,17 @@ def train_nn(X_train, y_train, X_test, y_test, model_name, num_classes=2, X_subm
 
     # filters = [128, 64]
     # classifier = get_model_design_1(filters, X_train[0].shape)
-    classifier = tf.keras.models.Sequential()
-    classifier.add(tf.keras.layers.Conv2D(256, (3, 3), activation='relu', input_shape=(64, 64, 1)))
-    classifier.add(tf.keras.layers.MaxPool2D(3, 3))
-    # classifier.add(tf.keras.layers.Conv2D(48, (2, 2), activation='relu'))
-    # classifier.add(tf.keras.layers.MaxPool2D(2, 2))
-    classifier.add(tf.keras.layers.Flatten())
-    classifier.add(tf.keras.layers.Dense(256, activation='relu'))
-    # # classifier.add(tf.keras.layers.Dense(256, input_shape=X_test[0].shape, activation="relu"))
-    # # classifier.add(tf.keras.layers.Dense(256, activation="relu"))
-    classifier.add(tf.keras.layers.Dense(num_classes, activation=activation_fn))
 
-    import tensorflow_addons as tfa
+    option = ["conv", "recurrent", "fully_connected"][0]
+
+    if option == "conv":
+        classifier = get_conv_classifier(num_classes, activation_fn)
+    elif option == "recurrent":
+        classifier = get_recurrent_classifier(num_classes, activation_fn)
+    elif option == "fully_connected":
+        classifier = get_fully_connected_classifier(num_classes, activation_fn)
+    else:
+        raise Exception("Wrong option!")
 
     adam_opt = tf.keras.optimizers.Adam(lr=learning_rate)
     sgd_opt = tf.keras.optimizers.SGD(lr=learning_rate)
@@ -472,10 +459,6 @@ def train_nn(X_train, y_train, X_test, y_test, model_name, num_classes=2, X_subm
             logging_metrics_list = get_classif_perf_metrics(y_test,
                                                             y_pred,
                                                             model_name=model_name, num_classes=num_classes)
-        else:
-            logging_metrics_list = get_regress_perf_metrics(y_test,
-                                                            y_pred,
-                                                            model_name=model_name)
 
         print(logging_metrics_list)
 

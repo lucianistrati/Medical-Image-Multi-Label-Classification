@@ -8,3 +8,4 @@ eff_net_test.npy
 eff_net_train.npy
 eff_net_val.npy
 .idea/dbnavigator.xml
+src/__pycache__/

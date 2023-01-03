@@ -150,15 +150,18 @@ def main():
     feature_extractor = None
     load_feature_extractor = True
 
-    if load_feature_extractor:
-        feature_extractor = ViTFeatureExtractor.from_pretrained('google/vit-base-patch16-224-in21k')
-    features = vit_base_16_224_21k(image, feature_extractor)
-    print(features.shape)
 
-    if load_feature_extractor:
-        feature_extractor = ViTFeatureExtractor.from_pretrained('google/vit-base-patch32-224-in21k')
-    features = vit_base_32_224_21k(image)
-    print(features.shape, feature_extractor)
+    # Killed
+    # if load_feature_extractor:
+    #     feature_extractor = ViTFeatureExtractor.from_pretrained('google/vit-base-patch16-224-in21k')
+    # features = vit_base_16_224_21k(image, feature_extractor)
+    # print(features.shape)
+
+    # Killed
+    # if load_feature_extractor:
+    #     feature_extractor = ViTFeatureExtractor.from_pretrained('google/vit-base-patch32-224-in21k')
+    # features = vit_base_32_224_21k(image)
+    # print(features.shape, feature_extractor)
 
     if load_feature_extractor:
         feature_extractor = ViTFeatureExtractor.from_pretrained('google/vit-base-patch16-224')

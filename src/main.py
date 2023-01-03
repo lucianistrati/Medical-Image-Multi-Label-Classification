@@ -1,5 +1,5 @@
 from typing import List
-from sklearn.metrics import accuracy_score, f1_score
+from sklearn.metrics import accuracy_score, f1_score, average_precision_score
 from sklearn.svm import SVC
 from matplotlib import pyplot as plt
 from collections import Counter
@@ -123,6 +123,15 @@ def plot_average_image(all_images, all_labels):
     plt.imshow(avg_neg_image, cmap='gray')  # , vmin=0, vmax=255)
     plt.title("average with label 0 image")
     plt.show()
+
+    difference_images = avg_pos_image - avg_neg_image
+
+    plt.imshow(difference_images, cmap='gray')  # , vmin=0, vmax=255)
+    plt.title("difference between average label 1 image and average label 0 image")
+    plt.show()
+
+    print("Difference between images value:", np.mean(difference_images))
+
 
 
 from src.train_neural_net import train_nn
@@ -283,20 +292,32 @@ def main():
     #            float(logging_metrics_list_3[0][1])) / 3
     #     print("Final F1:", res)
 
-    train_images = [efficient_net_fn(train_image) for train_image in tqdm(train_images)]
-    train_images = np.array(train_images)
+    # train_images = [efficient_net_fn(train_image) for train_image in tqdm(train_images)]
+    # train_images = np.array(train_images)
+    train_images = np.load(file="eff_net_train.npy", allow_pickle=True)
+    train_images = train_images.reshape(train_images.shape[0], train_images.shape[2])
+
     print(train_images.shape)
-    np.save(file="eff_net_train.npy", arr=train_images, allow_pickle=True)
+    # np.save(file="eff_net_train.npy", arr=train_images, allow_pickle=True)
 
-    val_images = [efficient_net_fn(val_image) for val_image in tqdm(val_images)]
-    val_images = np.array(val_images)
+    # val_images = [efficient_net_fn(val_image) for val_image in tqdm(val_images)]
+    # val_images = np.array(val_images)
+    val_images = np.load(file="eff_net_val.npy", allow_pickle=True)
+    val_images = val_images.reshape(val_images.shape[0], val_images.shape[2])
     print(val_images.shape)
-    np.save(file="eff_net_val.npy", arr=val_images, allow_pickle=True)
 
-    test_images = [efficient_net_fn(test_image) for test_image in tqdm(test_images)]
-    test_images = np.array(test_images)
+    # np.save(file="eff_net_val.npy", arr=val_images, allow_pickle=True)
+
+    # test_images = [efficient_net_fn(test_image) for test_image in tqdm(test_images)]
+    # test_images = np.array(test_images)
+    test_images = np.load(file="eff_net_test.npy", allow_pickle=True)
+    test_images = test_images.reshape(test_images.shape[0], test_images.shape[2])
+
     print(test_images.shape)
-    np.save(file="eff_net_test.npy", arr=test_images, allow_pickle=True)
+
+    # a = 1/0
+
+    # np.save(file="eff_net_test.npy", arr=test_images, allow_pickle=True)
 
     # train_images = [train_image.flatten() for train_image in train_images]
     # val_images = [val_image.flatten() for val_image in val_images]
