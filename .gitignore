@@ -4,3 +4,7 @@ good_submission_small_cnn_0.876.csv
 good_submission_small_cnn_0.87.csv
 .idea/
 src/__pycache__/train_neural_net.cpython-310.pyc
+eff_net_test.npy
+eff_net_train.npy
+eff_net_val.npy
+.idea/dbnavigator.xml

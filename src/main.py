@@ -3,6 +3,7 @@ from sklearn.metrics import accuracy_score, f1_score
 from sklearn.svm import SVC
 from matplotlib import pyplot as plt
 from collections import Counter
+from tqdm import tqdm
 
 import pandas as pd
 import numpy as np
@@ -11,22 +12,38 @@ import random
 import cv2
 import os
 
+import efficientnet.keras as efn
+import torch
 
-def efficient_net():
+efficient_net_model = efn.EfficientNetB0(weights='imagenet')  # or weights='noisy-student'
+
+
+def efficient_net_fn(img=None):
     # models can be build with Keras or Tensorflow frameworks
     # use keras and tfkeras modules respectively
     # efficientnet.keras / efficientnet.tfkeras
-    import efficientnet.keras as efn
 
-    model = efn.EfficientNetB0(weights='imagenet')  # or weights='noisy-student'
+    if img is None:
+        img = cv2.imread("data/train_images/10000.png")
+    resized_img = cv2.resize(img, dsize=(224, 224))
+    # print(resized_img.shape)
+    resized_img = np.reshape(resized_img, (1, 224, 224, 3))
+    output = efficient_net_model(resized_img)
+    # print(type(output))
+    # print(output.shape)
+    return output
 
     # model use some custom objects, so before loading saved model
     # import module your network was build with
     # e.g. import efficientnet.keras / import efficientnet.tfkeras
-    import efficientnet.tfkeras
-    from tensorflow.keras.models import load_model
-    model = load_model('path/to/model.h5')
+    # import efficientnet.tfkeras
+    # from tensorflow.keras.models import load_model
+    # model = load_model('path/to/model.h5')
 
+
+# efficient_net()
+
+# a = 1/0
 
 # OBSERVATION ------------ besides the 5000 black images, there is no other duplicate in the dataset
 def create_sample_submission(labels_1: List = None, labels_2: List = None, labels_3: List = None):
@@ -51,6 +68,8 @@ def load_images_from_folder(folder_path: str):
         filepath = os.path.join(folder_path, file)
         image = cv2.imread(filepath)
         one_channel_image = np.reshape(image[:, :, 0], (64, 64, 1))
+        one_channel_image = cv2.cvtColor(one_channel_image, cv2.COLOR_GRAY2RGB)
+
         # print(one_channel_image.shape)
         # a = 1/0
         images.append(one_channel_image)
@@ -160,12 +179,14 @@ def main():
         return images, labels_1, labels_2, labels_3
 
     train_images, train_labels_1, train_labels_2, train_labels_3 = keep_one_black_image(train_images, train_labels_1, train_labels_2, train_labels_3)
+
     # train_images, train_labels_2 = keep_one_black_image(train_images, train_labels_2)
     # train_images, train_labels_3 = keep_one_black_image(train_images, train_labels_3)
     # train_images, train_labels_2 = keep_one_black_image(train_images, train_labels_2)
     # train_images, train_labels_1 = keep_one_black_image(train_images, train_labels_1)
 
     val_images, val_labels_1, val_labels_2, val_labels_3 = keep_one_black_image(val_images, val_labels_1, val_labels_2, val_labels_3)
+
     # val_images, val_labels_1 = keep_one_black_image(val_images, val_labels_1)
     # val_images, val_labels_2 = keep_one_black_image(val_images, val_labels_2)
     # val_images, val_labels_3 = keep_one_black_image(val_images, val_labels_3)
@@ -262,16 +283,31 @@ def main():
     #            float(logging_metrics_list_3[0][1])) / 3
     #     print("Final F1:", res)
 
-    train_images = [train_image.flatten() for train_image in train_images]
-    val_images = [val_image.flatten() for val_image in val_images]
-    test_images = [test_image.flatten() for test_image in test_images]
+    train_images = [efficient_net_fn(train_image) for train_image in tqdm(train_images)]
+    train_images = np.array(train_images)
+    print(train_images.shape)
+    np.save(file="eff_net_train.npy", arr=train_images, allow_pickle=True)
+
+    val_images = [efficient_net_fn(val_image) for val_image in tqdm(val_images)]
+    val_images = np.array(val_images)
+    print(val_images.shape)
+    np.save(file="eff_net_val.npy", arr=val_images, allow_pickle=True)
+
+    test_images = [efficient_net_fn(test_image) for test_image in tqdm(test_images)]
+    test_images = np.array(test_images)
+    print(test_images.shape)
+    np.save(file="eff_net_test.npy", arr=test_images, allow_pickle=True)
+
+    # train_images = [train_image.flatten() for train_image in train_images]
+    # val_images = [val_image.flatten() for val_image in val_images]
+    # test_images = [test_image.flatten() for test_image in test_images]
 
     labels_1 = train_model(X_train=train_images, y_train=train_labels_1, X_val=val_images, y_val=val_labels_1,
-                           X_test=test_images, label="122")
+                           X_test=test_images, label="122_effnet")
     labels_2 = train_model(X_train=train_images, y_train=train_labels_2, X_val=val_images, y_val=val_labels_2,
-                           X_test=test_images, label="222")
+                           X_test=test_images, label="222_effnet")
     labels_3 = train_model(X_train=train_images, y_train=train_labels_3, X_val=val_images, y_val=val_labels_3,
-                           X_test=test_images, label="322")
+                           X_test=test_images, label="322_effnet")
 
     create_sample_submission(labels_1, labels_2, labels_3)
 

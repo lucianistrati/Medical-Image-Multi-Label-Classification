@@ -147,26 +147,43 @@ def main():
     image = cv2.imread("data/train_images/10004.png")
     print(image.shape)
 
-    feature_extractor = ViTFeatureExtractor.from_pretrained('google/vit-base-patch16-224-in21k')
-    features = vit_base_16_224_21k(image)
+    feature_extractor = None
+    load_feature_extractor = True
 
-    feature_extractor = ViTFeatureExtractor.from_pretrained('google/vit-base-patch32-224-in21k')
+    if load_feature_extractor:
+        feature_extractor = ViTFeatureExtractor.from_pretrained('google/vit-base-patch16-224-in21k')
+    features = vit_base_16_224_21k(image, feature_extractor)
+    print(features.shape)
+
+    if load_feature_extractor:
+        feature_extractor = ViTFeatureExtractor.from_pretrained('google/vit-base-patch32-224-in21k')
     features = vit_base_32_224_21k(image)
+    print(features.shape, feature_extractor)
 
-    feature_extractor = ViTFeatureExtractor.from_pretrained('google/vit-base-patch16-224')
+    if load_feature_extractor:
+        feature_extractor = ViTFeatureExtractor.from_pretrained('google/vit-base-patch16-224')
     features = vit_base_patch_16_224(image)
+    print(features.shape, feature_extractor)
 
-    feature_extractor = ViTFeatureExtractor.from_pretrained('google/vit-base-patch16-384')
+    if load_feature_extractor:
+        feature_extractor = ViTFeatureExtractor.from_pretrained('google/vit-base-patch16-384')
     features = vit_base_patch_16_384(image)
+    print(features.shape, feature_extractor)
 
-    feature_extractor = AutoFeatureExtractor.from_pretrained("microsoft/swin-tiny-patch4-window7-224")
+    if load_feature_extractor:
+        feature_extractor = AutoFeatureExtractor.from_pretrained("microsoft/swin-tiny-patch4-window7-224")
     features = swin_tiny_patch_window(image, feature_extractor)
+    print(features.shape, feature_extractor)
 
-    feature_extractor = AutoFeatureExtractor.from_pretrained("microsoft/resnet-50")
-    features = resnet_50(image)
+    if load_feature_extractor:
+        feature_extractor = AutoFeatureExtractor.from_pretrained("microsoft/resnet-50")
+    features = resnet_50(image, feature_extractor)
+    print(features.shape)
 
-    feature_extractor = BeitFeatureExtractor.from_pretrained('microsoft/beit-base-patch16-224-pt22k-ft22k')
-    features = beit_base(image)
+    if load_feature_extractor:
+        feature_extractor = BeitFeatureExtractor.from_pretrained('microsoft/beit-base-patch16-224-pt22k-ft22k')
+    features = beit_base(image, feature_extractor)
+    print(features.shape)
 
     names = ["google/vit-base-patch16-224-in21k", "google/vit-base-patch32-224-in21k",
              "microsoft/beit-base-patch16-224-pt22k-ft22k", "google/vit-base-patch16-224",
