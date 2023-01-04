@@ -64,11 +64,13 @@ def create_sample_submission(labels_1: List = None, labels_2: List = None, label
 
 def load_images_from_folder(folder_path: str):
     images = []
+    num_channels = 1
     for file in sorted(os.listdir(folder_path)):
         filepath = os.path.join(folder_path, file)
         image = cv2.imread(filepath)
         one_channel_image = np.reshape(image[:, :, 0], (64, 64, 1))
-        one_channel_image = cv2.cvtColor(one_channel_image, cv2.COLOR_GRAY2RGB)
+        if num_channels == 3:
+            one_channel_image = cv2.cvtColor(one_channel_image, cv2.COLOR_GRAY2RGB)
 
         # print(one_channel_image.shape)
         # a = 1/0
@@ -80,6 +82,18 @@ def load_data():
     train_images = load_images_from_folder("data/train_images")
     val_images = load_images_from_folder("data/val_images")
     test_images = load_images_from_folder("data/test_images")
+
+    # TODO try out these preprocessing ideas!!!!!!!!!!!!!!!!!!!!!!!!!111
+    # # # building the input vector from the 32x32 pixels
+    # X_train = X_train.reshape(X_train.shape[0], 32, 32, 3)
+    # X_test = X_test.reshape(X_test.shape[0], 32, 32, 3)
+    # X_train = X_train.astype('float32')
+    # X_test = X_test.astype('float32')
+    #
+    # # normalizing the data to help with the training
+    # X_train /= 255
+    # X_test /= 255
+
     return train_images, val_images, test_images
 
 
@@ -260,62 +274,74 @@ def main():
 
     X_train = np.array(train_images)
     X_test = np.array(val_images)
+
     X_submission = np.array(test_images)
     num_classes = 2
     model_name = "vanilla"
 
-    # y_train = np.array(train_labels_1)
-    # y_test = np.array(val_labels_1)
-    # class_weight = get_class_weight(train_labels_1)
-    # labels_1, logging_metrics_list_1 = train_nn(X_train, y_train, X_test, y_test, model_name, num_classes, X_submission, class_weight)
-    #
-    # np.save(allow_pickle=True, arr=labels_1, file=f"data/y_pred_for_submission_11111.npy")
-    #
-    # y_train = np.array(train_labels_2)
-    # y_test = np.array(val_labels_2)
-    # class_weight = get_class_weight(train_labels_3)
-    # labels_2, logging_metrics_list_2 = train_nn(X_train, y_train, X_test, y_test, model_name, num_classes, X_submission, class_weight)
-    #
-    # np.save(allow_pickle=True, arr=labels_2, file=f"data/y_pred_for_submission_22222.npy")
-    #
-    # y_train = np.array(train_labels_3)
-    # y_test = np.array(val_labels_3)
-    # class_weight = get_class_weight(train_labels_3)
-    # labels_3, logging_metrics_list_3 = train_nn(X_train, y_train, X_test, y_test, model_name, num_classes, X_submission, class_weight)
-    #
-    # np.save(allow_pickle=True, arr=labels_3, file=f"data/y_pred_for_submission_33333.npy")
-    #
-    # create_sample_submission(labels_1, labels_2, labels_3)
-    #
-    # if logging_metrics_list_1 is not None and logging_metrics_list_2 is not None and logging_metrics_list_3 is not None:
-    #     res = (float(logging_metrics_list_1[0][1]) + float(logging_metrics_list_3[0][1]) +
-    #            float(logging_metrics_list_3[0][1])) / 3
-    #     print("Final F1:", res)
-
+    # a = 1/0
     # train_images = [efficient_net_fn(train_image) for train_image in tqdm(train_images)]
     # train_images = np.array(train_images)
-    train_images = np.load(file="eff_net_train.npy", allow_pickle=True)
-    train_images = train_images.reshape(train_images.shape[0], train_images.shape[2])
-
-    print(train_images.shape)
+    # train_images = np.load(file="eff_net_train.npy", allow_pickle=True)
+    # train_images = train_images.reshape(train_images.shape[0], train_images.shape[2])
+    #
+    # print(train_images.shape)
     # np.save(file="eff_net_train.npy", arr=train_images, allow_pickle=True)
 
     # val_images = [efficient_net_fn(val_image) for val_image in tqdm(val_images)]
     # val_images = np.array(val_images)
-    val_images = np.load(file="eff_net_val.npy", allow_pickle=True)
-    val_images = val_images.reshape(val_images.shape[0], val_images.shape[2])
-    print(val_images.shape)
+    # val_images = np.load(file="eff_net_val.npy", allow_pickle=True)
+    # val_images = val_images.reshape(val_images.shape[0], val_images.shape[2])
+    # print(val_images.shape)
 
     # np.save(file="eff_net_val.npy", arr=val_images, allow_pickle=True)
 
     # test_images = [efficient_net_fn(test_image) for test_image in tqdm(test_images)]
     # test_images = np.array(test_images)
-    test_images = np.load(file="eff_net_test.npy", allow_pickle=True)
-    test_images = test_images.reshape(test_images.shape[0], test_images.shape[2])
+    # test_images = np.load(file="eff_net_test.npy", allow_pickle=True)
+    # test_images = test_images.reshape(test_images.shape[0], test_images.shape[2])
+    #
+    # print(test_images.shape)
 
-    print(test_images.shape)
+    # X_train = np.concatenate((train_images, val_images), axis=0)
+    X_train = np.array(train_images)
+    # X_val = val_images
+    X_test = np.array(val_images)
+    X_submission = np.array(test_images)
 
-    # a = 1/0
+    y_train = np.array(train_labels_1)
+    y_test = np.array(val_labels_1)
+
+    print(X_train.shape, y_train.shape)
+    print(X_test.shape, y_test.shape)
+
+    class_weight = get_class_weight(train_labels_1)
+    labels_1, logging_metrics_list_1 = train_nn(X_train, y_train, X_test, y_test, model_name, num_classes, X_submission, class_weight)
+
+    np.save(allow_pickle=True, arr=labels_1, file=f"data/y_pred_for_submission_ann_over_effnet_embs.npy")
+
+    y_train = np.array(train_labels_2)
+    y_test = np.array(val_labels_2)
+    class_weight = get_class_weight(train_labels_3)
+    labels_2, logging_metrics_list_2 = train_nn(X_train, y_train, X_test, y_test, model_name, num_classes, X_submission, class_weight)
+
+    np.save(allow_pickle=True, arr=labels_2, file=f"data/y_pred_for_submission_ann_over_effnet_embs.npy")
+
+    y_train = np.array(train_labels_3)
+    y_test = np.array(val_labels_3)
+    class_weight = get_class_weight(train_labels_3)
+    labels_3, logging_metrics_list_3 = train_nn(X_train, y_train, X_test, y_test, model_name, num_classes, X_submission, class_weight)
+
+    np.save(allow_pickle=True, arr=labels_3, file=f"data/y_pred_for_submission_ann_over_effnet_embs.npy")
+
+    create_sample_submission(labels_1, labels_2, labels_3)
+
+    if logging_metrics_list_1 is not None and logging_metrics_list_2 is not None and logging_metrics_list_3 is not None:
+        res = (float(logging_metrics_list_1[0][1]) + float(logging_metrics_list_3[0][1]) +
+               float(logging_metrics_list_3[0][1])) / 3
+        print("Final F1:", res)
+
+    a = 1/0
 
     # np.save(file="eff_net_test.npy", arr=test_images, allow_pickle=True)
 
