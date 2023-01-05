@@ -62,19 +62,56 @@ def create_sample_submission(labels_1: List = None, labels_2: List = None, label
     df.to_csv("good_submission.csv", index=False)
 
 
+from src.solt_augmentation import augment_image
+
+
 def load_images_from_folder(folder_path: str):
     images = []
     num_channels = 1
+    train_labels_df = pd.read_csv("data/train_labels.csv")
+    val_labels_df = pd.read_csv("data/val_labels.csv")
+
     for file in sorted(os.listdir(folder_path)):
         filepath = os.path.join(folder_path, file)
         image = cv2.imread(filepath)
         one_channel_image = np.reshape(image[:, :, 0], (64, 64, 1))
         if num_channels == 3:
             one_channel_image = cv2.cvtColor(one_channel_image, cv2.COLOR_GRAY2RGB)
-
-        # print(one_channel_image.shape)
-        # a = 1/0
         images.append(one_channel_image)
+        # if "test" in filepath:
+        #     continue
+        # augmented_images = augment_image(one_channel_image)
+        # indexes = [str(i) for i in range(1, len(augmented_images) + 1)]
+        # paths = [filepath[:filepath.rfind(".png")] + "_" + index + ".png" for index in indexes]
+        # for (augmented_path, augmented_image) in zip(paths, augmented_images):
+        #     cv2.imwrite(augmented_path, augmented_image)
+        #     images.append(augmented_image)
+        #     if "train" in filepath:
+        #         for j in range(len(train_labels_df)):
+        #             if train_labels_df.at[j, "id"] in filepath:
+        #                 label_1 = train_labels_df.at[j, "label1"]
+        #                 label_2 = train_labels_df.at[j, "label2"]
+        #                 label_3 = train_labels_df.at[j, "label3"]
+        #     if "val" in filepath:
+        #         for j in range(len(val_labels_df)):
+        #             if val_labels_df.at[j, "id"] in filepath:
+        #                 label_1 = val_labels_df.at[j, "label1"]
+        #                 label_2 = val_labels_df.at[j, "label2"]
+        #                 label_3 = val_labels_df.at[j, "label3"]
+        #     # print(filepath, augmented_path, train_labels_df.at[0, "id"])
+        #     new_row = {"id": augmented_path[augmented_path.rfind("/") + 1:],
+        #                 "label1": label_1,
+        #                 "label2": label_2,
+        #                 "label3": label_3}
+        #     if "train" in filepath:
+        #         train_labels_df_copy = train_labels_df.append(new_row, ignore_index=True)
+        #         train_labels_df = train_labels_df_copy
+        #     if "val" in filepath:
+        #         val_labels_df_copy = val_labels_df.append(new_row, ignore_index=True)
+        #         val_labels_df = val_labels_df_copy
+    # train_labels_df.to_csv("data/train_labels.csv")
+    # val_labels_df.to_csv("data/val_labels.csv")
+
     return images
 
 
@@ -339,9 +376,11 @@ def main():
     if logging_metrics_list_1 is not None and logging_metrics_list_2 is not None and logging_metrics_list_3 is not None:
         res = (float(logging_metrics_list_1[0][1]) + float(logging_metrics_list_3[0][1]) +
                float(logging_metrics_list_3[0][1])) / 3
+        print("F1" * 20)
         print("Final F1:", res)
+        print("F1" * 20)
 
-    a = 1/0
+    # a = 1/0
 
     # np.save(file="eff_net_test.npy", arr=test_images, allow_pickle=True)
 
@@ -349,12 +388,12 @@ def main():
     # val_images = [val_image.flatten() for val_image in val_images]
     # test_images = [test_image.flatten() for test_image in test_images]
 
-    labels_1 = train_model(X_train=train_images, y_train=train_labels_1, X_val=val_images, y_val=val_labels_1,
-                           X_test=test_images, label="122_effnet")
-    labels_2 = train_model(X_train=train_images, y_train=train_labels_2, X_val=val_images, y_val=val_labels_2,
-                           X_test=test_images, label="222_effnet")
-    labels_3 = train_model(X_train=train_images, y_train=train_labels_3, X_val=val_images, y_val=val_labels_3,
-                           X_test=test_images, label="322_effnet")
+    # labels_1 = train_model(X_train=train_images, y_train=train_labels_1, X_val=val_images, y_val=val_labels_1,
+    #                        X_test=test_images, label="122_effnet")
+    # labels_2 = train_model(X_train=train_images, y_train=train_labels_2, X_val=val_images, y_val=val_labels_2,
+    #                        X_test=test_images, label="222_effnet")
+    # labels_3 = train_model(X_train=train_images, y_train=train_labels_3, X_val=val_images, y_val=val_labels_3,
+    #                        X_test=test_images, label="322_effnet")
 
     create_sample_submission(labels_1, labels_2, labels_3)
 

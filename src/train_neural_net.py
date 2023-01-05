@@ -285,26 +285,26 @@ def get_conv_classifier(num_classes, activation_fn, input_shape):
 
     # cnn 2 - https://www.analyticsvidhya.com/blog/2020/02/learn-image-classification-cnn-convolutional-neural-networks-3-datasets/
     # cnn 2 is also 89% smth, as rnn lstm is 89% smth as well
-    model.add(tf.keras.layers.InputLayer(input_shape=input_shape))
-
-    # 1st conv block
-    model.add(tf.keras.layers.Conv2D(25, (5, 5), activation='relu', strides=(1, 1), padding='same'))
-    model.add(tf.keras.layers.MaxPool2D(pool_size=(2, 2), padding='same'))
-    # 2nd conv block
-    model.add(tf.keras.layers.Conv2D(50, (5, 5), activation='relu', strides=(2, 2), padding='same'))
-    model.add(tf.keras.layers.MaxPool2D(pool_size=(2, 2), padding='same'))
-    model.add(tf.keras.layers.BatchNormalization())
-    # 3rd conv block
-    model.add(tf.keras.layers.Conv2D(70, (3, 3), activation='relu', strides=(2, 2), padding='same'))
-    model.add(tf.keras.layers.MaxPool2D(pool_size=(2, 2), padding='valid'))
-    model.add(tf.keras.layers.BatchNormalization())
-    # ANN block
-    model.add(tf.keras.layers.Flatten())
-    model.add(tf.keras.layers.Dense(units=100, activation='relu'))
-    model.add(tf.keras.layers.Dense(units=100, activation='relu'))
-    model.add(tf.keras.layers.Dropout(0.25))
-    # output layer
-    model.add(tf.keras.layers.Dense(units=2, activation='softmax'))
+    # model.add(tf.keras.layers.InputLayer(input_shape=input_shape))
+    #
+    # # 1st conv block
+    # model.add(tf.keras.layers.Conv2D(25, (5, 5), activation='relu', strides=(1, 1), padding='same'))
+    # model.add(tf.keras.layers.MaxPool2D(pool_size=(2, 2), padding='same'))
+    # # 2nd conv block
+    # model.add(tf.keras.layers.Conv2D(50, (5, 5), activation='relu', strides=(2, 2), padding='same'))
+    # model.add(tf.keras.layers.MaxPool2D(pool_size=(2, 2), padding='same'))
+    # model.add(tf.keras.layers.BatchNormalization())
+    # # 3rd conv block
+    # model.add(tf.keras.layers.Conv2D(70, (3, 3), activation='relu', strides=(2, 2), padding='same'))
+    # model.add(tf.keras.layers.MaxPool2D(pool_size=(2, 2), padding='valid'))
+    # model.add(tf.keras.layers.BatchNormalization())
+    # # ANN block
+    # model.add(tf.keras.layers.Flatten())
+    # model.add(tf.keras.layers.Dense(units=100, activation='relu'))
+    # model.add(tf.keras.layers.Dense(units=100, activation='relu'))
+    # model.add(tf.keras.layers.Dropout(0.25))
+    # # output layer
+    # model.add(tf.keras.layers.Dense(units=2, activation='softmax'))
 
     # from keras.applications import VGG16
     #
@@ -313,80 +313,82 @@ def get_conv_classifier(num_classes, activation_fn, input_shape):
     # pretrained_model.summary()
 
     # cnn-3
-    # model.add(Conv2D(50, kernel_size=(3, 3), strides=(1, 1), padding='same', activation='relu', input_shape=(32, 32, 3)))
-
-    # # convolutional layer
-    # model.add(Conv2D(75, kernel_size=(3, 3), strides=(1, 1), padding='same', activation='relu'))
-    # model.add(MaxPool2D(pool_size=(2, 2)))
-    # model.add(Dropout(0.25))
+    # model.add(tf.keras.layers.Conv2D(50, kernel_size=(3, 3), strides=(1, 1), padding='same', activation='relu', input_shape=input_shape))
     #
-    # model.add(Conv2D(125, kernel_size=(3, 3), strides=(1, 1), padding='same', activation='relu'))
-    # model.add(MaxPool2D(pool_size=(2, 2)))
-    # model.add(Dropout(0.25))
+    # # convolutional layer
+    # model.add(tf.keras.layers.Conv2D(75, kernel_size=(3, 3), strides=(1, 1), padding='same', activation='relu'))
+    # model.add(tf.keras.layers.MaxPool2D(pool_size=(2, 2)))
+    # model.add(tf.keras.layers.Dropout(0.25))
+    #
+    # model.add(tf.keras.layers.Conv2D(125, kernel_size=(3, 3), strides=(1, 1), padding='same', activation='relu'))
+    # model.add(tf.keras.layers.MaxPool2D(pool_size=(2, 2)))
+    # model.add(tf.keras.layers.Dropout(0.25))
     #
     # # flatten output of conv
-    # model.add(Flatten())
+    # model.add(tf.keras.layers.Flatten())
     #
     # # hidden layer
-    # model.add(Dense(500, activation='relu'))
-    # model.add(Dropout(0.4))
-    # model.add(Dense(250, activation='relu'))
-    # model.add(Dropout(0.3))
+    # model.add(tf.keras.layers.Dense(500, activation='relu'))
+    # model.add(tf.keras.layers.Dropout(0.4))
+    # model.add(tf.keras.layers.Dense(250, activation='relu'))
+    # model.add(tf.keras.layers.Dropout(0.3))
     # # output layer
-    # model.add(Dense(10, activation='softmax'))
+    # model.add(tf.keras.layers.Dense(2, activation='softmax'))
     #
 
     # https://www.guru99.com/convnet-tensorflow-image-classification.html -> TODO to be tried out if everything else fails
 
     # CNN-4
     # https://www.geeksforgeeks.org/image-classifier-using-cnn/
-    # convnet = input_data(shape=input_shape, name='input')
-    # convnet = conv_2d(convnet, 32, 5, activation='relu')
-    # convnet = max_pool_2d(convnet, 5)
-    # convnet = conv_2d(convnet, 64, 5, activation='relu')
-    # convnet = max_pool_2d(convnet, 5)
-    # convnet = conv_2d(convnet, 128, 5, activation='relu')
-    # convnet = max_pool_2d(convnet, 5)
-    # convnet = conv_2d(convnet, 64, 5, activation='relu')
-    # convnet = max_pool_2d(convnet, 5)
-    # convnet = conv_2d(convnet, 32, 5, activation='relu')
-    # convnet = max_pool_2d(convnet, 5)
-    # convnet = fully_connected(convnet, 1024, activation='relu')
-    # convnet = dropout(convnet, 0.8)
-    # model = fully_connected(convnet, 2, activation='softmax')
+    # model.add(tf.keras.layers.input_data(shape=input_shape, name='input'))
+    model.add(tf.keras.layers.Conv2D(32, kernel_size=(5, 5), activation='relu', input_shape=input_shape))
+    model.add(tf.keras.layers.MaxPool2D(5))
+    model.add(tf.keras.layers.Conv2D(64, kernel_size=(5, 5), activation='relu'))
+    model.add(tf.keras.layers.MaxPool2D(5))
+    # model.add(tf.keras.layers.Conv2D(128, kernel_size=(5, 5), activation='relu'))
+    # model.add(tf.keras.layers.MaxPool2D(5))
+    # model.add(tf.keras.layers.Conv2D(64, kernel_size=(5, 5), activation='relu'))
+    # model.add(tf.keras.layers.MaxPool2D(5))
+    # model.add(tf.keras.layers.Conv2D(32, kernel_size=(5, 5), activation='relu'))
+    # model.add(tf.keras.layers.MaxPool2D(5))
+    model.add(tf.keras.layers.Flatten())
+    model.add(tf.keras.layers.Dense(1024, activation='relu'))
+    model.add(tf.keras.layers.Dropout(0.8))
+    model.add(tf.keras.layers.Dense(2, activation='softmax'))
 
     # cnn-5
     # https://www.learndatasci.com/tutorials/convolutional-neural-networks-image-classification/
     #### Input Layer ####
-    # model.add(Conv2D(filters=32, kernel_size=(3, 3), padding='same',
-    #                  activation='relu', input_shape=(128, 128, 3)))
-
-    #### Convolutional Layers ####
-    # model.add(Conv2D(32, (3, 3), activation='relu'))
-    # model.add(MaxPooling2D((2, 2)))  # Pooling
-    # model.add(Dropout(0.2))  # Dropout
-    #
-    # model.add(Conv2D(64, (3, 3), padding='same', activation='relu'))
-    # model.add(Conv2D(64, (3, 3), activation='relu'))
-    # model.add(MaxPooling2D((2, 2)))
-    # model.add(Dropout(0.2))
-    #
-    # model.add(Conv2D(128, (3, 3), padding='same', activation='relu'))
-    # model.add(Conv2D(128, (3, 3), activation='relu'))
-    # model.add(Activation('relu'))
-    # model.add(MaxPooling2D((2, 2)))
-    # model.add(Dropout(0.2))
-    #
-    # model.add(Conv2D(512, (5, 5), padding='same', activation='relu'))
-    # model.add(Conv2D(512, (5, 5), activation='relu'))
-    # model.add(MaxPooling2D((4, 4)))
-    # model.add(Dropout(0.2))
-    #
+    # model.add(tf.keras.layers.Conv2D(filters=32, kernel_size=(3, 3), padding='same',
+    #                  activation='relu', input_shape=input_shape))
+    # 
+    # ### Convolutional Layers ####
+    # model.add(tf.keras.layers.Conv2D(32, (3, 3), activation='relu'))
+    # model.add(tf.keras.layers.MaxPooling2D((2, 2)))  # Pooling
+    # model.add(tf.keras.layers.Dropout(0.2))  # Dropout
+    # 
+    # model.add(tf.keras.layers.Conv2D(64, (3, 3), padding='same', activation='relu'))
+    # model.add(tf.keras.layers.Conv2D(64, (3, 3), activation='relu'))
+    # model.add(tf.keras.layers.MaxPooling2D((2, 2)))
+    # model.add(tf.keras.layers.Dropout(0.2))
+    # 
+    # model.add(tf.keras.layers.Conv2D(128, (3, 3), padding='same', activation='relu'))
+    # model.add(tf.keras.layers.Conv2D(128, (3, 3), activation='relu'))
+    # model.add(tf.keras.layers.Activation('relu'))
+    # model.add(tf.keras.layers.MaxPooling2D((2, 2)))
+    # model.add(tf.keras.layers.Dropout(0.2))
+    # 
+    # model.add(tf.keras.layers.Conv2D(512, (5, 5), padding='same', activation='relu'))
+    # model.add(tf.keras.layers.Conv2D(512, (5, 5), activation='relu'))
+    # 
+    # model.add(tf.keras.layers.MaxPooling2D((4, 4), padding="same"))
+    # model.add(tf.keras.layers.Dropout(0.2))
+    # 
     # #### Fully-Connected Layer ####
-    # model.add(Flatten())
-    # model.add(Dense(1024, activation='relu'))
-    # model.add(Dropout(0.2))
-    # model.add(Dense(len(class_subset), activation='softmax'))
+    # model.add(tf.keras.layers.Flatten())
+    # model.add(tf.keras.layers.Dense(1024, activation='relu'))
+    # model.add(tf.keras.layers.Dropout(0.2))
+    # model.add(tf.keras.layers.Dense(2, activation='softmax'))
 
     return model
 
