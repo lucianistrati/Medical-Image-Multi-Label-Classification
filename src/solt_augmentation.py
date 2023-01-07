@@ -1,5 +1,6 @@
+from solt.transforms import Rotate, Flip, Shear, Scale, Pad, Blur, Crop, CutOut
+
 import matplotlib.pyplot as plt
-import solt.transforms as slt
 
 import random
 import solt
@@ -10,20 +11,20 @@ def augment_image(input_img, visualize: bool = False):
     # https://www.analyticsvidhya.com/blog/2022/04/image-augmentation-using-3-python-libraries/
     h, w, c = input_img.shape
     img = input_img[:w]
-
+    # creating the stream of augmentations
     stream = solt.Stream([
-        slt.Rotate(angle_range=(-90, 90), p=1, padding='r'),  # rotations between -90 and 90 degrees
-        slt.Flip(axis=1, p=0.5),  # horizontal flip
-        slt.Flip(axis=0, p=0.5),  # vertical flip
-        slt.Shear(range_x=0.3, range_y=0.8, p=0.5, padding='r'),
-        slt.Scale(range_x=(0.8, 1.3), padding='r', range_y=(0.8, 1.3), same=False, p=0.5),  # rescale
-        slt.Pad((w, h), 'r'),  # paddinngs
-        slt.Crop((w, w), 'r'),  # croppings
-        slt.Blur(k_size=7, blur_type='m'),  # blurrings
+        Rotate(angle_range=(-90, 90), p=1, padding='r'),  # rotations between -90 and 90 degrees
+        Flip(axis=1, p=0.5),  # horizontal flip
+        Flip(axis=0, p=0.5),  # vertical flip
+        Shear(range_x=0.3, range_y=0.8, p=0.5, padding='r'),
+        Scale(range_x=(0.8, 1.3), padding='r', range_y=(0.8, 1.3), same=False, p=0.5),  # rescale
+        Pad((w, h), 'r'),  # paddinngs
+        Crop((w, w), 'r'),  # croppings
+        Blur(k_size=7, blur_type='m'),  # blurrings
         solt.SelectiveStream([
-            slt.CutOut(40, p=1),
-            slt.CutOut(50, p=1),
-            slt.CutOut(10, p=1),
+            CutOut(40, p=1),
+            CutOut(50, p=1),
+            CutOut(10, p=1),
             solt.Stream(),
             solt.Stream(),
         ], n=3),

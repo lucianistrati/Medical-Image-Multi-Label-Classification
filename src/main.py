@@ -213,7 +213,7 @@ def main():
 
     train_val_images = np.array(train_val_images)
 
-    plot_average_image(train_val_images, train_val_labels)
+    # plot_average_image(train_val_images, train_val_labels)
 
     train_labels_1, train_labels_2, train_labels_3 = train_labels["label1"].to_list(), \
         train_labels["label2"].to_list(), \

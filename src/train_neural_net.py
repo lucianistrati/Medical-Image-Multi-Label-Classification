@@ -157,9 +157,6 @@ def get_conv_classifier(num_classes, activation_fn, input_shape, option: int = 1
         classifier.add(tf.keras.layers.Conv2D(256, (3, 3), activation='relu', input_shape=(64, 64, 1)))
         classifier.add(tf.keras.layers.MaxPool2D(3, 3))
 
-        # classifier.add(tf.keras.layers.Conv2D(48, (2, 2), activation='relu'))
-        # classifier.add(tf.keras.layers.MaxPool2D(2, 2))
-
         classifier.add(tf.keras.layers.Flatten())
         classifier.add(tf.keras.layers.Dense(256, activation='relu'))
 
@@ -267,9 +264,6 @@ def get_fully_connected_classifier(num_classes, activation_fn, input_shape=None,
         classifier.add(tf.keras.layers.Dense(256, activation='relu', input_shape=input_shape))
         classifier.add(tf.keras.layers.Dense(256, activation='relu'))
 
-        # classifier.add(tf.keras.layers.Dense(256, input_shape=X_test[0].shape, activation="relu"))
-        # classifier.add(tf.keras.layers.Dense(256, activation="relu"))
-
         classifier.add(tf.keras.layers.Dense(num_classes, activation=activation_fn))
     elif option == 2:
         classifier.add(tf.keras.layers.Dense(256, input_shape=input_shape))
@@ -283,7 +277,7 @@ def get_fully_connected_classifier(num_classes, activation_fn, input_shape=None,
     return classifier
 
 
-def get_recurrent_classifier(num_classes, input_shape=None):
+def get_recurrent_classifier(num_classes, input_shape=None, option: int=1):
     """
     returns a recurrent neural network
     :param num_classes:
@@ -325,21 +319,23 @@ def train_nn(X_train, y_train, X_test, y_test, model_name, num_classes=2, X_subm
     :param class_weight:
     :return:
     """
+    # early stopping mechanism stops the training if based on the criteria given the loss is not improving enough (in this case if for at least 5 epochs)
     early_stopping = EarlyStopping(
         patience=5,
         min_delta=0.001,
         restore_best_weights=True,
     )
-
+    # learning rate scheduler taes care of reducing the learning rate in plateaus and increasing it in valleys
     lr_schedule = ReduceLROnPlateau(
         patience=0,
         factor=0.2,
         min_lr=0.001,
     )
 
-    n_epochs = [5, 10]
-    learning_rate = [1e-3, 1e-2, 1e-1]
+    n_epochs = [1, 5, 10][0]
+    learning_rate = [1e-3, 1e-2, 1e-1][0]
 
+    # converting the labels to a categorical encoding, changing 0, 1 to [1, 0], [0, 1]
     y_train = tf.keras.utils.to_categorical(y_train, num_classes)
     y_test = tf.keras.utils.to_categorical(y_test, num_classes)
 
@@ -353,6 +349,8 @@ def train_nn(X_train, y_train, X_test, y_test, model_name, num_classes=2, X_subm
         input_shape = (X_train[0].shape)
         classifier = get_conv_classifier(num_classes, activation_fn, input_shape)
     elif option == "recurrent":
+        # reshaping is needed for the recurrent neural network since the LSTM requires the data to be in the shape:
+        # (number of datapoints, number of timesteps, number of features)
         X_train = X_train.reshape((X_train.shape[0], X_train.shape[1], X_train.shape[2]))
         X_test = X_test.reshape((X_test.shape[0], X_test.shape[1], X_test.shape[2]))
         input_shape = (X_train[0].shape)
@@ -363,11 +361,15 @@ def train_nn(X_train, y_train, X_test, y_test, model_name, num_classes=2, X_subm
     else:
         raise Exception("Wrong option!")
 
+    # defining the two optimizers
     opt = [tf.keras.optimizers.Adam(lr=learning_rate), tf.keras.optimizers.SGD(lr=learning_rate)][0]
 
+    # defining the two categorical crossentropy loss functions (bicategorical one is essentially a particular case of
+    # categorical one for 2 classes)
     loss_function = [tf.keras.losses.BinaryCrossentropy(), tf.keras.losses.CategoricalCrossentropy()][0]
 
-    metrics_function = [tfa.metrics.F1Score(num_classes=2), "accuracy"][0]
+    # defining the metrics
+    metrics_function = ["average_precision_at_k", tf.keras.metrics.MeanAveragePrecisionMetric(num_classes=2), tfa.metrics.F1Score(num_classes=2), "accuracy"][0]
 
     classifier.compile(optimizer=opt, loss=loss_function, metrics=[metrics_function])
 
@@ -381,6 +383,7 @@ def train_nn(X_train, y_train, X_test, y_test, model_name, num_classes=2, X_subm
 
     if class_weight is not None:
         if validation_option is None:
+            # training the classifier
             history = classifier.fit(X_train,
                                      y_train,
                                      epochs=n_epochs,
@@ -388,6 +391,7 @@ def train_nn(X_train, y_train, X_test, y_test, model_name, num_classes=2, X_subm
                                      class_weight=class_weight,
                                      callbacks=[early_stopping, lr_schedule])
         elif validation_option is "split":
+            # training the classifier
             history = classifier.fit(X_train,
                                      y_train,
                                      epochs=n_epochs,
@@ -396,6 +400,7 @@ def train_nn(X_train, y_train, X_test, y_test, model_name, num_classes=2, X_subm
                                      callbacks=[early_stopping, lr_schedule],
                                      validation_split=validation_split)
         elif validation_option is "data":
+            # training the classifier
             history = classifier.fit(X_train,
                                      y_train,
                                      epochs=n_epochs,
@@ -407,6 +412,7 @@ def train_nn(X_train, y_train, X_test, y_test, model_name, num_classes=2, X_subm
             raise Exception(f"Wrong validation_option: {validation_option}")
     else:
         if validation_option is None:
+            # training the classifier
             history = classifier.fit(X_train,
                                      y_train,
                                      epochs=n_epochs,
@@ -420,6 +426,7 @@ def train_nn(X_train, y_train, X_test, y_test, model_name, num_classes=2, X_subm
                                      callbacks=[early_stopping, lr_schedule],
                                      validation_data=validation_data)
         elif validation_option is "data":
+            # training the classifier
             history = classifier.fit(X_train,
                                      y_train,
                                      epochs=n_epochs,
@@ -439,6 +446,7 @@ def train_nn(X_train, y_train, X_test, y_test, model_name, num_classes=2, X_subm
         y_test = np.argmax(y_test, axis=-1)
         y_pred = np.argmax(y_pred, axis=-1)
 
+        # calculating a set of metrics
         logging_metrics_list = get_classif_perf_metrics(y_test,
                                                         y_pred,
                                                         model_name=model_name, num_classes=num_classes)

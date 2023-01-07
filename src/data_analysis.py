@@ -8,6 +8,7 @@ from collections import Counter
 
 
 def main():
+    # data analysis
     train_images, val_images, test_images = load_data()
     print(len(train_images), len(val_images), len(test_images))
     train_labels, val_labels = load_labels()
@@ -42,7 +43,7 @@ def main():
                     cnt = Counter(train_labels_3)
 
             performance = [cnt[0], cnt[1]]
-
+            # distribution of labels plots across tasks and datasets
             plt.bar(y_pos, performance, align='center', alpha=0.5)
             plt.xticks(y_pos, objects)
             plt.ylabel('Labels')

@@ -13,48 +13,105 @@
 <div class="file" id="user-content-article-documentation">
 <div class="Box-body readme blob js-code-block-container p-5 p-xl-6" id="user-content-file-docker-image-pull-md-readme" style="margin-left: 40px; margin-right: 40px; margin-top: 20px; margin-bottom: 20px">
 <article class="markdown-body entry-content container-lg" itemprop="text">
-<p>Images are 64 by 64 by 3, but since they are grayscale we can use a 64 by 64 by 3 or 64 by 64 by 1 images for models training.</p>
-<p>Each image will have 3 binary labels associated with it.</p>
-<p>At a first close look through the data many images that were totally black were observed, because of this I decided to investigate how many of these black images were there in total. In total, 5000 black images were found. Since there were this many black ones I also searched for other possible duplicates in the dataset between normal images, but none were found. Trainings were done both with those 5000 black images and without them. Also, this quarter of the dataset was labelled with both
-zeroes and ones.</p>
-<p>One quarter of the images are black (4985 out of 15.000). A removal of all black images except for one image was performed.</p>
-<ol>
-<li>Convolutional neural network model. Five architectures were tried out for this type of model as this one proved to yield the best results from the start out of the 3 types of models:</li>
-</ol>
+<h1 id="user-content-medical-image-multi-label-classification"><a aria-hidden="true" class="anchor" href="#user-content-medical-image-multi-label-classification" id="user-content-medical-image-multi-label-classification" name="user-content-medical-image-multi-label-classification"><span aria-hidden="true" class="octicon octicon-link"></span></a>Medical Image Multi Label Classification</h1>
+<h4 id="user-content-student-lucian-istrati---511---data-science"><a aria-hidden="true" class="anchor" href="#user-content-student-lucian-istrati---511---data-science" id="user-content-student-lucian-istrati---511---data-science" name="user-content-student-lucian-istrati---511---data-science"><span aria-hidden="true" class="octicon octicon-link"></span></a>Student: Lucian Istrati - 511 - Data Science</h4>
+<h4 id="user-content-lucianistratisunibucro"><a aria-hidden="true" class="anchor" href="#user-content-lucianistratisunibucro" id="user-content-lucianistratisunibucro" name="user-content-lucianistratisunibucro"><span aria-hidden="true" class="octicon octicon-link"></span></a><a href="mailto:lucian.istrati@s.unibuc.ro">lucian.istrati@s.unibuc.ro</a></h4>
+<h4 id="user-content-lucianistratimyfmiunibucro"><a aria-hidden="true" class="anchor" href="#user-content-lucianistratimyfmiunibucro" id="user-content-lucianistratimyfmiunibucro" name="user-content-lucianistratimyfmiunibucro"><span aria-hidden="true" class="octicon octicon-link"></span></a><a href="mailto:lucian.istrati@my.fmi.unibuc.ro">lucian.istrati@my.fmi.unibuc.ro</a></h4>
+<h2 id="user-content-introduction"><a aria-hidden="true" class="anchor" href="#user-content-introduction" id="user-content-introduction" name="user-content-introduction"><span aria-hidden="true" class="octicon octicon-link"></span></a>Introduction</h2>
+<p>The task at hand is to be able to perform three classification for any scan image. Each image has 3 binary labels associated with it.</p>
+<h2 id="user-content-dataset-analysis"><a aria-hidden="true" class="anchor" href="#user-content-dataset-analysis" id="user-content-dataset-analysis" name="user-content-dataset-analysis"><span aria-hidden="true" class="octicon octicon-link"></span></a>Dataset Analysis</h2>
+<p>The images are split across the datasets in the following manner:</p>
 <ul>
-<li>1.a</li>
-<li>1.b</li>
-<li>1.c</li>
-<li>1.d</li>
-<li>1.e</li>
+<li>12.000 images in the training set;</li>
+<li>3.000 images in the validation set;</li>
+<li>5.000 images in the testing set.</li>
 </ul>
-<ol start="2">
-<li>
-<p>Recurrent neural network model. Only one architecture was tried out for this type of model.</p>
-</li>
-<li>
-<p>Fully connected neural network model. Two architectures were tried out for this type of model:</p>
-</li>
-</ol>
+<p>In order to load the data we call:</p>
 <ul>
-<li>3.a</li>
-<li>3.b</li>
+<li>load_data() from main.py in order to load the images;</li>
+<li>load_labels() from main.py to load the labels for the images from training and validations sets;</li>
 </ul>
-<p><a href="/images/LabelsDistributionForClass0intrainingset.png" rel="noopener noreferrer" target="_blank"><img alt="image info" data-canonical-src="/images/LabelsDistributionForClass0intrainingset.png" src="/images/LabelsDistributionForClass0intrainingset.png" style="max-width: 100%; max-height: 480px;"/></a></p>
-<p><a href="/images/LabelsDistributionForClass0invalidationset.png" rel="noopener noreferrer" target="_blank"><img alt="image info" data-canonical-src="/images/LabelsDistributionForClass0invalidationset.png" src="/images/LabelsDistributionForClass0invalidationset.png" style="max-width: 100%; max-height: 480px;"/></a></p>
-<p><a href="/images/LabelsDistributionForClass1intrainingset.png" rel="noopener noreferrer" target="_blank"><img alt="image info" data-canonical-src="/images/LabelsDistributionForClass1intrainingset.png" src="/images/LabelsDistributionForClass1intrainingset.png" style="max-width: 100%; max-height: 480px;"/></a></p>
-<p><a href="/images/LabelsDistributionForClass1invalidationset.png" rel="noopener noreferrer" target="_blank"><img alt="image info" data-canonical-src="/images/LabelsDistributionForClass1invalidationset.png" src="/images/LabelsDistributionForClass1invalidationset.png" style="max-width: 100%; max-height: 480px;"/></a></p>
-<p><a href="/images/LabelsDistributionForClass2intrainingset.png" rel="noopener noreferrer" target="_blank"><img alt="image info" data-canonical-src="/images/LabelsDistributionForClass2intrainingset.png" src="/images/LabelsDistributionForClass2intrainingset.png" style="max-width: 100%; max-height: 480px;"/></a></p>
-<p><a href="/images/LabelsDistributionForClass2invalidationset.png" rel="noopener noreferrer" target="_blank"><img alt="image info" data-canonical-src="/images/LabelsDistributionForClass2invalidationset.png" src="/images/LabelsDistributionForClass2invalidationset.png" style="max-width: 100%; max-height: 480px;"/></a></p>
+<p>Some observations about the data:</p>
+<ul>
+<li>images are 64 by 64 by 3, but since they are grayscale we can use a 64 by 64 by 3 or 64 by 64 by 1 images for models training.</li>
+<li>at a first close look through the data many images that were totally black were observed, because of this I decided to investigate how many of these black images were there in total. In total, 5000 black images were found. Since there were this many black ones I also searched for other possible duplicates in the dataset between normal images, but none were found. Trainings were done both without most of these 5000 black images, except for one with a 0 label on each task and with a 1 label
+on  each
+task. Also, this
+quarter of the dataset was
+labelled
+with both
+zeroes and ones.</li>
+<li>one quarter of the images are black (4985 out of 15.000). A removal of all black images except for one image was performed.</li>
+</ul>
+<h3 id="user-content-labels-distribution"><a aria-hidden="true" class="anchor" href="#user-content-labels-distribution" id="user-content-labels-distribution" name="user-content-labels-distribution"><span aria-hidden="true" class="octicon octicon-link"></span></a>Labels distribution</h3>
+<ul>
+<li>Training set first task:</li>
+<li><a href="/images/LabelsDistributionForClass0intrainingset.png" rel="noopener noreferrer" target="_blank"><img alt="image info" data-canonical-src="/images/LabelsDistributionForClass0intrainingset.png" src="/images/LabelsDistributionForClass0intrainingset.png" style="max-width: 100%; max-height: 480px;"/></a></li>
+<li>Validation set first task:
+<a href="/images/LabelsDistributionForClass0invalidationset.png" rel="noopener noreferrer" target="_blank"><img alt="image info" data-canonical-src="/images/LabelsDistributionForClass0invalidationset.png" src="/images/LabelsDistributionForClass0invalidationset.png" style="max-width: 100%; max-height: 480px;"/></a>
+</li>
+<li>Training set second task:</li>
+<li><a href="/images/LabelsDistributionForClass1intrainingset.png" rel="noopener noreferrer" target="_blank"><img alt="image info" data-canonical-src="/images/LabelsDistributionForClass1intrainingset.png" src="/images/LabelsDistributionForClass1intrainingset.png" style="max-width: 100%; max-height: 480px;"/></a></li>
+<li>Validation set second task:</li>
+<li><a href="/images/LabelsDistributionForClass1invalidationset.png" rel="noopener noreferrer" target="_blank"><img alt="image info" data-canonical-src="/images/LabelsDistributionForClass1invalidationset.png" src="/images/LabelsDistributionForClass1invalidationset.png" style="max-width: 100%; max-height: 480px;"/></a></li>
+<li>Training set third task:</li>
+<li><a href="/images/LabelsDistributionForClass2intrainingset.png" rel="noopener noreferrer" target="_blank"><img alt="image info" data-canonical-src="/images/LabelsDistributionForClass2intrainingset.png" src="/images/LabelsDistributionForClass2intrainingset.png" style="max-width: 100%; max-height: 480px;"/></a></li>
+<li>Validation set third task:</li>
+<li><a href="/images/LabelsDistributionForClass2invalidationset.png" rel="noopener noreferrer" target="_blank"><img alt="image info" data-canonical-src="/images/LabelsDistributionForClass2invalidationset.png" src="/images/LabelsDistributionForClass2invalidationset.png" style="max-width: 100%; max-height: 480px;"/></a></li>
+</ul>
+<h3 id="user-content-1-convolutional-neural-network-model-five-architectures-were-tried-out-for-this-type-of-model-as-this-one-proved-to-yield-the-best-results-from-the-start-out-of-the-3-types-of-models"><a aria-hidden="true" class="anchor" href="#user-content-1-convolutional-neural-network-model-five-architectures-were-tried-out-for-this-type-of-model-as-this-one-proved-to-yield-the-best-results-from-the-start-out-of-the-3-types-of-models" id="user-content-1-convolutional-neural-network-model-five-architectures-were-tried-out-for-this-type-of-model-as-this-one-proved-to-yield-the-best-results-from-the-start-out-of-the-3-types-of-models" name="user-content-1-convolutional-neural-network-model-five-architectures-were-tried-out-for-this-type-of-model-as-this-one-proved-to-yield-the-best-results-from-the-start-out-of-the-3-types-of-models"><span aria-hidden="true" class="octicon octicon-link"></span></a>1. Convolutional neural network model. Five architectures were tried out for this type of model as this one proved to yield the best results from the start out of the 3 types of models:</h3>
+<ul>
+<li>1.a
+<a href="/images/conv_1.png" rel="noopener noreferrer" target="_blank"><img alt="image info" data-canonical-src="/images/conv_1.png" src="/images/conv_1.png" style="max-width: 100%; max-height: 627px;"/></a>
+</li>
+<li>1.b
+<a href="/images/conv_2.png" rel="noopener noreferrer" target="_blank"><img alt="image info" data-canonical-src="/images/conv_2.png" src="/images/conv_2.png" style="max-width: 100%; max-height: 1512px;"/></a>
+</li>
+<li>1.c
+<a href="/images/conv_3.png" rel="noopener noreferrer" target="_blank"><img alt="image info" data-canonical-src="/images/conv_3.png" src="/images/conv_3.png" style="max-width: 100%; max-height: 1512px;"/></a>
+</li>
+<li>1.d
+<a href="/images/conv_4.png" rel="noopener noreferrer" target="_blank"><img alt="image info" data-canonical-src="/images/conv_4.png" src="/images/conv_4.png" style="max-width: 100%; max-height: 959px;"/></a>
+</li>
+<li>1.e
+<a href="/images/conv_5.png" rel="noopener noreferrer" target="_blank"><img alt="image info" data-canonical-src="/images/conv_5.png" src="/images/conv_5.png" style="max-width: 100%; max-height: 2397px;"/></a>
+</li>
+<li>Convolution neural networks are different from vanilla fully connecte neural networks because of the convolutional and pooling layers. Convolutions work by sliding a filter (which must be smaller than the original image, otherwise we are performing a deconvolution instead of convolution) and when sliding the filter we are essentially multiply term by term the filter with a subimage of the original image and then we add it up (so essntially a scalar product that leads to downsizing the
+image in order to increase the amount of information contained per pixel in the image). These convolutions are then followed by max pooling operations which lead to choosing the maximal value of pixels from continuous subimages slided from the original image.</li>
+</ul>
+<h3 id="user-content-2-recurrent-neural-network-model-only-one-architecture-was-tried-out-for-this-type-of-model"><a aria-hidden="true" class="anchor" href="#user-content-2-recurrent-neural-network-model-only-one-architecture-was-tried-out-for-this-type-of-model" id="user-content-2-recurrent-neural-network-model-only-one-architecture-was-tried-out-for-this-type-of-model" name="user-content-2-recurrent-neural-network-model-only-one-architecture-was-tried-out-for-this-type-of-model"><span aria-hidden="true" class="octicon octicon-link"></span></a>2. Recurrent neural network model. Only one architecture was tried out for this type of model.</h3>
+<p><a href="/images/recurrent_1.png" rel="noopener noreferrer" target="_blank"><img alt="image info" data-canonical-src="/images/recurrent_1.png" src="/images/recurrent_1.png" style="max-width: 100%; max-height: 627px;"/></a></p>
+<ul>
+<li>Recurrent neural networks were developed as a need to model sequential data sampled as points in time, so generally speaking is less suitable for image and more appropriate for time series data.</li>
+</ul>
+<h3 id="user-content-3-fully-connected-neural-network-model-two-architectures-were-tried-out-for-this-type-of-model"><a aria-hidden="true" class="anchor" href="#user-content-3-fully-connected-neural-network-model-two-architectures-were-tried-out-for-this-type-of-model" id="user-content-3-fully-connected-neural-network-model-two-architectures-were-tried-out-for-this-type-of-model" name="user-content-3-fully-connected-neural-network-model-two-architectures-were-tried-out-for-this-type-of-model"><span aria-hidden="true" class="octicon octicon-link"></span></a>3. Fully connected neural network model. Two architectures were tried out for this type of model:</h3>
+<ul>
+<li>3.a
+<a href="/images/fully_connected_1.png" rel="noopener noreferrer" target="_blank"><img alt="image info" data-canonical-src="/images/fully_connected_1.png" src="/images/fully_connected_1.png" style="max-width: 100%; max-height: 405px;"/></a>
+</li>
+<li>3.b
+<a href="/images/fully_connected_2.png" rel="noopener noreferrer" target="_blank"><img alt="image info" data-canonical-src="/images/fully_connected_2.png" src="/images/fully_connected_2.png" style="max-width: 100%; max-height: 627px;"/></a>
+</li>
+<li>Fully connected neural networks are models comprised of multiple layers of perceptrons alligned in deep depths in order to captures as many non-linearities as possible. There are many tweaks that can be done to this tpe of neural networks such as: dropout layers which drop neurons in order to increase the robustness of the network or batch-normalization to perform the normalization at batch level at an intermediary layer.</li>
+</ul>
 <p>cnn 2 is also 89% smth, as rnn lstm is 89% smth as well</p>
-<p>requiremenets for documentation:</p>
-<p>data analysis</p>
-<p>Tried out augmentations:</p>
-<p>Original image:</p>
+<p>Tried out some augmentations, such as the following:</p>
+<ul>
+<li>Rotate - rotate an image up to a certain degree</li>
+<li>Flip - flip an image horizontally or vertically</li>
+<li>Shear - shear an image</li>
+<li>Scale - downsize an image or upsize it</li>
+<li>Pad - add padding to the borders of a image</li>
+<li>Blur - blur an image and make it more fuzzy</li>
+<li>Crop - crop parts from an image</li>
+<li>CutOut - crop and extracts the parts from the image (like a masking of inside pixels)</li>
+</ul>
+<p>This is an example of how these augmentations turned out to look like:</p>
+<h3 id="user-content-original-image"><a aria-hidden="true" class="anchor" href="#user-content-original-image" id="user-content-original-image" name="user-content-original-image"><span aria-hidden="true" class="octicon octicon-link"></span></a>Original image:</h3>
 <ul>
 <li><a href="/images/10001.png" rel="noopener noreferrer" target="_blank"><img alt="image info" data-canonical-src="/images/10001.png" src="/images/10001.png" style="max-width: 100%; max-height: 64px;"/></a></li>
 </ul>
-<p>Augmented images:</p>
+<h3 id="user-content-augmented-images"><a aria-hidden="true" class="anchor" href="#user-content-augmented-images" id="user-content-augmented-images" name="user-content-augmented-images"><span aria-hidden="true" class="octicon octicon-link"></span></a>Augmented images:</h3>
 <ul>
 <li><a href="/images/10001_5.png" rel="noopener noreferrer" target="_blank"><img alt="image info" data-canonical-src="/images/10001_5.png" src="/images/10001_5.png" style="max-width: 100%; max-height: 64px;"/></a></li>
 <li><a href="/images/10001_8.png" rel="noopener noreferrer" target="_blank"><img alt="image info" data-canonical-src="/images/10001_8.png" src="/images/10001_8.png" style="max-width: 100%; max-height: 64px;"/></a></li>
@@ -68,66 +125,69 @@ zeroes and ones.</p>
 <li><a href="/images/10001_10.png" rel="noopener noreferrer" target="_blank"><img alt="image info" data-canonical-src="/images/10001_10.png" src="/images/10001_10.png" style="max-width: 100%; max-height: 64px;"/></a></li>
 </ul>
 <p>There were no substantial differeneces or improvement after performing augmentations of the dataset.</p>
-<p>Number of epochs choices:</p>
+<h3 id="user-content-number-of-epochs-choices"><a aria-hidden="true" class="anchor" href="#user-content-number-of-epochs-choices" id="user-content-number-of-epochs-choices" name="user-content-number-of-epochs-choices"><span aria-hidden="true" class="octicon octicon-link"></span></a>Number of epochs choices:</h3>
 <ul>
-<li>5</li>
-<li>10</li>
+<li>5 - around 5 or +/-3 epochs it was underfitting;</li>
+<li>10 - best results (above this, it went into overfitting);</li>
 </ul>
-<p>Learning rate choices:</p>
+<h3 id="user-content-learning-rate-choices"><a aria-hidden="true" class="anchor" href="#user-content-learning-rate-choices" id="user-content-learning-rate-choices" name="user-content-learning-rate-choices"><span aria-hidden="true" class="octicon octicon-link"></span></a>Learning rate choices:</h3>
 <ul>
-<li>1e-3</li>
-<li>1e-2</li>
-<li>1e-1</li>
+<li>1e-3 - best results</li>
+<li>1e-2 - worse results</li>
+<li>1e-1 - worse results</li>
 </ul>
-<p>Optimizer choices:</p>
+<h3 id="user-content-optimizer-choices"><a aria-hidden="true" class="anchor" href="#user-content-optimizer-choices" id="user-content-optimizer-choices" name="user-content-optimizer-choices"><span aria-hidden="true" class="octicon octicon-link"></span></a>Optimizer choices:</h3>
 <ul>
-<li>Adam</li>
-<li>SGD (Stochastic Gradient Descent)</li>
+<li>Adam - better results</li>
+<li>SGD (Stochastic Gradient Descent) - worse results</li>
 </ul>
-<p>Loss function choices:</p>
+<h3 id="user-content-loss-function-choices"><a aria-hidden="true" class="anchor" href="#user-content-loss-function-choices" id="user-content-loss-function-choices" name="user-content-loss-function-choices"><span aria-hidden="true" class="octicon octicon-link"></span></a>Loss function choices:</h3>
 <ul>
-<li>Binary Crossentropy</li>
-<li>Categorical Crossentropy</li>
+<li>Binary Crossentropy - insignificant differences</li>
+<li>Categorical Crossentropy - insignificant differences</li>
 </ul>
-<p>Metrics function choices:</p>
+<h3 id="user-content-metrics-function-choices"><a aria-hidden="true" class="anchor" href="#user-content-metrics-function-choices" id="user-content-metrics-function-choices" name="user-content-metrics-function-choices"><span aria-hidden="true" class="octicon octicon-link"></span></a>Metrics function choices:</h3>
 <ul>
-<li>F1Score</li>
-<li>Accuracy</li>
+<li>F1Score - final choice as the kaggle metric was also this one</li>
+<li>Accuracy - no significant difference, but went for F1 since it was also used on kaggle</li>
 </ul>
-<p>Data preprocessing techniques:</p>
+<h3 id="user-content-data-preprocessing-techniques"><a aria-hidden="true" class="anchor" href="#user-content-data-preprocessing-techniques" id="user-content-data-preprocessing-techniques" name="user-content-data-preprocessing-techniques"><span aria-hidden="true" class="octicon octicon-link"></span></a>Data preprocessing techniques:</h3>
 <ul>
 <li>resizing from (64, 64, 3) to (64, 64, 1)</li>
 <li>normalization by dividing to 255</li>
 <li>downsizing to (32, 32)</li>
 <li>converting the images to float32 precision</li>
 </ul>
-<p>models description(CNN, RNN), data preprocessing/augmentation, hyperparameterization
-(learning rate, regularization, performance function) document all tried approaches (even unsuccesful ones)</p>
-<p>at least 3 pages</p>
-<p>at least two different deep learning models</p>
 <p>average precision per class on validation set with various models (tables/figures for these)</p>
-<p>python code with explanatory comments</p>
-<p>folder named ISTRATI_LUCIAN</p>
-<p>ONLY PY FILES</p>
-<p>single zip file in the end</p>
-<h4></h4>
-<p>Your grade will be given only if you provide the code and a technical report for the proposed approaches. The documentation should include:</p>
-<pre><code>The description of your deep learning approaches including the tested models (CNN, RNN, etc.). 
-Details should also include data preprocessing / augmentation (if present) and 
-hyperparameter choices (learning rate, performance function, regularization, etc.).   
-A minimum of 3 pages (excluding tables and figures) is expected. Documenting all the tried 
-approaches (even unsuccessful ones) is important.
-</code></pre>
-<p>Documenting and using at least two different deep learning models is required.
-Average Precision per class on the validation set with various models (use tables / figures to report these).
-The python code of your model should include explanatory comments.
-The *.py files must be placed in a separate folder (from the rest of the documentation) named '{family_name}_{first_name}'.
-The documentation and the folder containing the *.py files must be archived in a single *.zip file.</p>
-<p>Important notes regarding the submitted code and documentation:</p>
-<pre><code>The deadline for submitting the documentation is 07.01.2023 23:59 EET.
-Code and documentation is subject to plagiarism verification and can lead to disqualification.
-Do not include data with your submission (only code and documentation files).
-</code></pre>
+<h3 id="user-content-submitting"><a aria-hidden="true" class="anchor" href="#user-content-submitting" id="user-content-submitting" name="user-content-submitting"><span aria-hidden="true" class="octicon octicon-link"></span></a>Submitting</h3>
+<p>In order to then create a submission file we call:</p>
+<ul>
+<li>create_sample_submission() from main.py</li>
+</ul>
+<h4 id="user-content-methodology"><a aria-hidden="true" class="anchor" href="#user-content-methodology" id="user-content-methodology" name="user-content-methodology"><span aria-hidden="true" class="octicon octicon-link"></span></a>Methodology</h4>
+<h2 id="user-content-experiments"><a aria-hidden="true" class="anchor" href="#user-content-experiments" id="user-content-experiments" name="user-content-experiments"><span aria-hidden="true" class="octicon octicon-link"></span></a>Experiments</h2>
+<p>The experiments were mainly about experimenting with the three types of architectures: fully connected, recurrent and convolutional by varying the learning rate, optimizer, loss function, number of epochs, batch size and depth of the network.</p>
+<h2 id="user-content-future-works"><a aria-hidden="true" class="anchor" href="#user-content-future-works" id="user-content-future-works" name="user-content-future-works"><span aria-hidden="true" class="octicon octicon-link"></span></a>Future works</h2>
+<p>A possible future wor could be to try out some other more advanced transformers based architectures or deeper architectures such as Efficient Net, VGG or AlexNet. Maybe some other augmentations could be tried out as well. Of course new sources of data could also improve the performance as the dataset at hand is quite small for a task where high performance can be obtained mostly with large convoluted neural networks.</p>
+<h2 id="user-content-conclusion"><a aria-hidden="true" class="anchor" href="#user-content-conclusion" id="user-content-conclusion" name="user-content-conclusion"><span aria-hidden="true" class="octicon octicon-link"></span></a>Conclusion</h2>
+<p>In the src folder there are five py files:</p>
+<ul>
+<li>data_analysis.py - where some analysis is performed on the dataset</li>
+<li>main.py - the main on which the other files rely on</li>
+<li>network_visualizer.py - functions necessary for creating the plots of the NNs architectures</li>
+<li>solt_augmentation.py - image augmentation is located</li>
+<li>train_neural_net.py -  util functions for training various neural networks</li>
+</ul>
+<p>To conclude, convolutional neural networks proved to yield the best results when compared to recurrent neural networks with long-short-term memory or other more simple fully connected neural networks.</p>
+<p>Also, out of the 5 cnn tried out architectures the deepest one prooved to yield the best results overall managing to achieve a public score of 0.915 and a private sore of 0.907, so a difference of about 0.8% between the public and the private scores.</p>
+<h2 id="user-content-references"><a aria-hidden="true" class="anchor" href="#user-content-references" id="user-content-references" name="user-content-references"><span aria-hidden="true" class="octicon octicon-link"></span></a>References</h2>
+<p><a href="https://www.analyticsvidhya.com/blog/2020/02/learn-image-classification-cnn-convolutional-neural-networks-3-datasets/" rel="nofollow">https://www.analyticsvidhya.com/blog/2020/02/learn-image-classification-cnn-convolutional-neural-networks-3-datasets/</a>
+<a href="https://www.antoniofurioso.com/artificial-intelligence/convolutional-neural-network-what-it-is-and-how-it-works/" rel="nofollow">https://www.antoniofurioso.com/artificial-intelligence/convolutional-neural-network-what-it-is-and-how-it-works/</a>
+<a href="https://towardsdatascience.com/inside-convolutional-neural-network-e1c4c1d44fa2" rel="nofollow">https://towardsdatascience.com/inside-convolutional-neural-network-e1c4c1d44fa2</a>
+<a href="https://medium.com/analytics-vidhya/an-overview-of-convolutional-neural-network-cnn-a6a3d67ce543" rel="nofollow">https://medium.com/analytics-vidhya/an-overview-of-convolutional-neural-network-cnn-a6a3d67ce543</a>
+<a href="https://www.analyticsvidhya.com/blog/2022/03/basics-of-cnn-in-deep-learning/" rel="nofollow">https://www.analyticsvidhya.com/blog/2022/03/basics-of-cnn-in-deep-learning/</a>
+<a href="https://medium.com/analytics-vidhya/understanding-neural-networks-from-neuron-to-rnn-cnn-and-deep-learning-cd88e90e0a90" rel="nofollow">https://medium.com/analytics-vidhya/understanding-neural-networks-from-neuron-to-rnn-cnn-and-deep-learning-cd88e90e0a90</a>
+<a href="https://www.analyticsvidhya.com/blog/2022/01/convolutional-neural-networkcnn/" rel="nofollow">https://www.analyticsvidhya.com/blog/2022/01/convolutional-neural-networkcnn/</a></p>
 </article>
 </div>
 </div>
