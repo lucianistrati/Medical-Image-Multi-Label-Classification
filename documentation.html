@@ -1,0 +1,137 @@
+<!-- ?xml version='1.0' encoding='UTF-8'? -->
+<link href="/github-markdown-css/github-css.css" rel="stylesheet"/>
+<meta charset="utf-8" content="text/html"/>
+<div class="gist">
+<style class="formula-style">
+        svg.gh-md-to-html-formula {
+            fill: black;
+        }
+    </style>
+<div class="gist-file"> <!-- This is the class that is responsible for the boxing! -->
+<div class="gist-data">
+<div class="js-gist-file-update-container js-task-list-container file-box">
+<div class="file" id="user-content-article-documentation">
+<div class="Box-body readme blob js-code-block-container p-5 p-xl-6" id="user-content-file-docker-image-pull-md-readme" style="margin-left: 40px; margin-right: 40px; margin-top: 20px; margin-bottom: 20px">
+<article class="markdown-body entry-content container-lg" itemprop="text">
+<p>Images are 64 by 64 by 3, but since they are grayscale we can use a 64 by 64 by 3 or 64 by 64 by 1 images for models training.</p>
+<p>Each image will have 3 binary labels associated with it.</p>
+<p>At a first close look through the data many images that were totally black were observed, because of this I decided to investigate how many of these black images were there in total. In total, 5000 black images were found. Since there were this many black ones I also searched for other possible duplicates in the dataset between normal images, but none were found. Trainings were done both with those 5000 black images and without them. Also, this quarter of the dataset was labelled with both
+zeroes and ones.</p>
+<p>One quarter of the images are black (4985 out of 15.000). A removal of all black images except for one image was performed.</p>
+<ol>
+<li>Convolutional neural network model. Five architectures were tried out for this type of model as this one proved to yield the best results from the start out of the 3 types of models:</li>
+</ol>
+<ul>
+<li>1.a</li>
+<li>1.b</li>
+<li>1.c</li>
+<li>1.d</li>
+<li>1.e</li>
+</ul>
+<ol start="2">
+<li>
+<p>Recurrent neural network model. Only one architecture was tried out for this type of model.</p>
+</li>
+<li>
+<p>Fully connected neural network model. Two architectures were tried out for this type of model:</p>
+</li>
+</ol>
+<ul>
+<li>3.a</li>
+<li>3.b</li>
+</ul>
+<p><a href="/images/LabelsDistributionForClass0intrainingset.png" rel="noopener noreferrer" target="_blank"><img alt="image info" data-canonical-src="/images/LabelsDistributionForClass0intrainingset.png" src="/images/LabelsDistributionForClass0intrainingset.png" style="max-width: 100%; max-height: 480px;"/></a></p>
+<p><a href="/images/LabelsDistributionForClass0invalidationset.png" rel="noopener noreferrer" target="_blank"><img alt="image info" data-canonical-src="/images/LabelsDistributionForClass0invalidationset.png" src="/images/LabelsDistributionForClass0invalidationset.png" style="max-width: 100%; max-height: 480px;"/></a></p>
+<p><a href="/images/LabelsDistributionForClass1intrainingset.png" rel="noopener noreferrer" target="_blank"><img alt="image info" data-canonical-src="/images/LabelsDistributionForClass1intrainingset.png" src="/images/LabelsDistributionForClass1intrainingset.png" style="max-width: 100%; max-height: 480px;"/></a></p>
+<p><a href="/images/LabelsDistributionForClass1invalidationset.png" rel="noopener noreferrer" target="_blank"><img alt="image info" data-canonical-src="/images/LabelsDistributionForClass1invalidationset.png" src="/images/LabelsDistributionForClass1invalidationset.png" style="max-width: 100%; max-height: 480px;"/></a></p>
+<p><a href="/images/LabelsDistributionForClass2intrainingset.png" rel="noopener noreferrer" target="_blank"><img alt="image info" data-canonical-src="/images/LabelsDistributionForClass2intrainingset.png" src="/images/LabelsDistributionForClass2intrainingset.png" style="max-width: 100%; max-height: 480px;"/></a></p>
+<p><a href="/images/LabelsDistributionForClass2invalidationset.png" rel="noopener noreferrer" target="_blank"><img alt="image info" data-canonical-src="/images/LabelsDistributionForClass2invalidationset.png" src="/images/LabelsDistributionForClass2invalidationset.png" style="max-width: 100%; max-height: 480px;"/></a></p>
+<p>cnn 2 is also 89% smth, as rnn lstm is 89% smth as well</p>
+<p>requiremenets for documentation:</p>
+<p>data analysis</p>
+<p>Tried out augmentations:</p>
+<p>Original image:</p>
+<ul>
+<li><a href="/images/10001.png" rel="noopener noreferrer" target="_blank"><img alt="image info" data-canonical-src="/images/10001.png" src="/images/10001.png" style="max-width: 100%; max-height: 64px;"/></a></li>
+</ul>
+<p>Augmented images:</p>
+<ul>
+<li><a href="/images/10001_5.png" rel="noopener noreferrer" target="_blank"><img alt="image info" data-canonical-src="/images/10001_5.png" src="/images/10001_5.png" style="max-width: 100%; max-height: 64px;"/></a></li>
+<li><a href="/images/10001_8.png" rel="noopener noreferrer" target="_blank"><img alt="image info" data-canonical-src="/images/10001_8.png" src="/images/10001_8.png" style="max-width: 100%; max-height: 64px;"/></a></li>
+<li><a href="/images/10001_7.png" rel="noopener noreferrer" target="_blank"><img alt="image info" data-canonical-src="/images/10001_7.png" src="/images/10001_7.png" style="max-width: 100%; max-height: 64px;"/></a></li>
+<li><a href="/images/10001_2.png" rel="noopener noreferrer" target="_blank"><img alt="image info" data-canonical-src="/images/10001_2.png" src="/images/10001_2.png" style="max-width: 100%; max-height: 64px;"/></a></li>
+<li><a href="/images/10001_6.png" rel="noopener noreferrer" target="_blank"><img alt="image info" data-canonical-src="/images/10001_6.png" src="/images/10001_6.png" style="max-width: 100%; max-height: 64px;"/></a></li>
+<li><a href="/images/10001_4.png" rel="noopener noreferrer" target="_blank"><img alt="image info" data-canonical-src="/images/10001_4.png" src="/images/10001_4.png" style="max-width: 100%; max-height: 64px;"/></a></li>
+<li><a href="/images/10001_3.png" rel="noopener noreferrer" target="_blank"><img alt="image info" data-canonical-src="/images/10001_3.png" src="/images/10001_3.png" style="max-width: 100%; max-height: 64px;"/></a></li>
+<li><a href="/images/10001_9.png" rel="noopener noreferrer" target="_blank"><img alt="image info" data-canonical-src="/images/10001_9.png" src="/images/10001_9.png" style="max-width: 100%; max-height: 64px;"/></a></li>
+<li><a href="/images/10001_1.png" rel="noopener noreferrer" target="_blank"><img alt="image info" data-canonical-src="/images/10001_1.png" src="/images/10001_1.png" style="max-width: 100%; max-height: 64px;"/></a></li>
+<li><a href="/images/10001_10.png" rel="noopener noreferrer" target="_blank"><img alt="image info" data-canonical-src="/images/10001_10.png" src="/images/10001_10.png" style="max-width: 100%; max-height: 64px;"/></a></li>
+</ul>
+<p>There were no substantial differeneces or improvement after performing augmentations of the dataset.</p>
+<p>Number of epochs choices:</p>
+<ul>
+<li>5</li>
+<li>10</li>
+</ul>
+<p>Learning rate choices:</p>
+<ul>
+<li>1e-3</li>
+<li>1e-2</li>
+<li>1e-1</li>
+</ul>
+<p>Optimizer choices:</p>
+<ul>
+<li>Adam</li>
+<li>SGD (Stochastic Gradient Descent)</li>
+</ul>
+<p>Loss function choices:</p>
+<ul>
+<li>Binary Crossentropy</li>
+<li>Categorical Crossentropy</li>
+</ul>
+<p>Metrics function choices:</p>
+<ul>
+<li>F1Score</li>
+<li>Accuracy</li>
+</ul>
+<p>Data preprocessing techniques:</p>
+<ul>
+<li>resizing from (64, 64, 3) to (64, 64, 1)</li>
+<li>normalization by dividing to 255</li>
+<li>downsizing to (32, 32)</li>
+<li>converting the images to float32 precision</li>
+</ul>
+<p>models description(CNN, RNN), data preprocessing/augmentation, hyperparameterization
+(learning rate, regularization, performance function) document all tried approaches (even unsuccesful ones)</p>
+<p>at least 3 pages</p>
+<p>at least two different deep learning models</p>
+<p>average precision per class on validation set with various models (tables/figures for these)</p>
+<p>python code with explanatory comments</p>
+<p>folder named ISTRATI_LUCIAN</p>
+<p>ONLY PY FILES</p>
+<p>single zip file in the end</p>
+<h4></h4>
+<p>Your grade will be given only if you provide the code and a technical report for the proposed approaches. The documentation should include:</p>
+<pre><code>The description of your deep learning approaches including the tested models (CNN, RNN, etc.). 
+Details should also include data preprocessing / augmentation (if present) and 
+hyperparameter choices (learning rate, performance function, regularization, etc.).   
+A minimum of 3 pages (excluding tables and figures) is expected. Documenting all the tried 
+approaches (even unsuccessful ones) is important.
+</code></pre>
+<p>Documenting and using at least two different deep learning models is required.
+Average Precision per class on the validation set with various models (use tables / figures to report these).
+The python code of your model should include explanatory comments.
+The *.py files must be placed in a separate folder (from the rest of the documentation) named '{family_name}_{first_name}'.
+The documentation and the folder containing the *.py files must be archived in a single *.zip file.</p>
+<p>Important notes regarding the submitted code and documentation:</p>
+<pre><code>The deadline for submitting the documentation is 07.01.2023 23:59 EET.
+Code and documentation is subject to plagiarism verification and can lead to disqualification.
+Do not include data with your submission (only code and documentation files).
+</code></pre>
+</article>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>

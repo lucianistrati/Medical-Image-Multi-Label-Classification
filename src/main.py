@@ -10,7 +10,15 @@ import numpy as np
 import cv2
 import os
 
+
 def create_sample_submission(labels_1: List = None, labels_2: List = None, labels_3: List = None):
+    """
+    Creates a file with the format required for the submission given the labels for each task
+    :param labels_1:
+    :param labels_2:
+    :param labels_3:
+    :return:
+    """
     if labels_1 is None:
         labels_1 = np.load(allow_pickle=True, file=f"data/y_pred_for_submission_1.npy")
     if labels_2 is None:
@@ -26,6 +34,12 @@ def create_sample_submission(labels_1: List = None, labels_2: List = None, label
 
 
 def load_images_from_folder(folder_path: str, augment_images: bool = False):
+    """
+    loads images from the folders and optionally can augment them
+    :param folder_path:
+    :param augment_images:
+    :return:
+    """
     images = []
     num_channels = 1
     if augment_images:
@@ -61,9 +75,9 @@ def load_images_from_folder(folder_path: str, augment_images: bool = False):
                             label_2 = val_labels_df.at[j, "label2"]
                             label_3 = val_labels_df.at[j, "label3"]
                 new_row = {"id": augmented_path[augmented_path.rfind("/") + 1:],
-                            "label1": label_1,
-                            "label2": label_2,
-                            "label3": label_3}
+                           "label1": label_1,
+                           "label2": label_2,
+                           "label3": label_3}
                 if "train" in filepath:
                     train_labels_df_copy = train_labels_df.append(new_row, ignore_index=True)
                     train_labels_df = train_labels_df_copy
@@ -106,28 +120,59 @@ def load_labels():
     val_labels = pd.read_csv("data/val_labels.csv")
     return train_labels, val_labels
 
-def plot_average_image(all_images, all_labels):
-    neg_images = [image for (image, label) in zip(all_images, all_labels) if label == 0]
-    pos_images = [image for (image, label) in zip(all_images, all_labels) if label == 1]
 
+def plot_average_image(all_images, all_labels):
+    """
+    averaging out images or images with certain labels and pointing the differences that exist generally speaking
+    between negative and positive images
+    :param all_images:
+    :param all_labels:
+    :return:
+    """
+    print(all_images[0].shape)
+    neg_images = np.array([image for (image, label) in zip(all_images, all_labels) if label == 0])
+    pos_images = np.array([image for (image, label) in zip(all_images, all_labels) if label == 1])
+
+    print(np.array(neg_images).shape, "###")
+
+    # spooky stuff with these images shapes
     avg_neg_image = np.mean(np.array(neg_images))
     avg_pos_image = np.mean(np.array(pos_images))
 
+    # print(avg_neg_image)
+    # print(avg_pos_image)
+
+    print(avg_neg_image.shape, avg_pos_image.shape)
+
     plt.imshow(avg_pos_image, cmap='gray')
     plt.title("average with label 1 image")
+    plt.savefig("data/average with label 1 image.png")
     plt.show()
 
     plt.imshow(avg_neg_image, cmap='gray')
     plt.title("average with label 0 image")
+    plt.savefig("data/average with label 0 image.png")
     plt.show()
 
     difference_images = avg_pos_image - avg_neg_image
 
     plt.imshow(difference_images, cmap='gray')
     plt.title("difference between average label 1 image and average label 0 image")
+    plt.savefig("data/difference between average label 1 image and average label 0 image.png")
     plt.show()
 
     print("Difference between images value:", np.mean(difference_images))
+
+    difference_images = avg_pos_image - avg_neg_image
+
+    plt.imshow(difference_images, cmap='gray')
+    plt.title("difference between average label 0 image and average label 1 image")
+    plt.savefig("data/difference between average label 0 image and average label 1 image.png")
+    plt.show()
+
+    print("Difference between images value:", np.mean(difference_images))
+
+    a = 1 / 0
 
 
 def keep_one_black_image(images, labels_1, labels_2, labels_3):
@@ -160,7 +205,15 @@ def get_class_weight(labels):
 def main():
     train_images, val_images, test_images = load_data()
 
+    train_val_images = train_images + val_images
+
     train_labels, val_labels = load_labels()
+
+    train_val_labels = train_labels + val_labels
+
+    train_val_images = np.array(train_val_images)
+
+    plot_average_image(train_val_images, train_val_labels)
 
     train_labels_1, train_labels_2, train_labels_3 = train_labels["label1"].to_list(), \
         train_labels["label2"].to_list(), \

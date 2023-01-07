@@ -47,8 +47,8 @@ def main():
             plt.xticks(y_pos, objects)
             plt.ylabel('Labels')
             plt.title(f'Labels distribution for class {cls} in {type_of_set} set')
-            plt.show()
             plt.savefig(f'data/LabelsDistributionForClass{cls}in{type_of_set}set.png')
+            plt.show()
 
 
 if __name__ == "__main__":

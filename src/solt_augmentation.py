@@ -6,19 +6,20 @@ import solt
 import cv2
 
 
-def augment_image(input_img, visualize: bool=False):
+def augment_image(input_img, visualize: bool = False):
+    # https://www.analyticsvidhya.com/blog/2022/04/image-augmentation-using-3-python-libraries/
     h, w, c = input_img.shape
     img = input_img[:w]
 
     stream = solt.Stream([
-        slt.Rotate(angle_range=(-90, 90), p=1, padding='r'),
-        slt.Flip(axis=1, p=0.5),
-        slt.Flip(axis=0, p=0.5),
+        slt.Rotate(angle_range=(-90, 90), p=1, padding='r'),  # rotations between -90 and 90 degrees
+        slt.Flip(axis=1, p=0.5),  # horizontal flip
+        slt.Flip(axis=0, p=0.5),  # vertical flip
         slt.Shear(range_x=0.3, range_y=0.8, p=0.5, padding='r'),
-        slt.Scale(range_x=(0.8, 1.3), padding='r', range_y=(0.8, 1.3), same=False, p=0.5),
-        slt.Pad((w, h), 'r'),
-        slt.Crop((w, w), 'r'),
-        slt.Blur(k_size=7, blur_type='m'),
+        slt.Scale(range_x=(0.8, 1.3), padding='r', range_y=(0.8, 1.3), same=False, p=0.5),  # rescale
+        slt.Pad((w, h), 'r'),  # paddinngs
+        slt.Crop((w, w), 'r'),  # croppings
+        slt.Blur(k_size=7, blur_type='m'),  # blurrings
         solt.SelectiveStream([
             slt.CutOut(40, p=1),
             slt.CutOut(50, p=1),
@@ -52,6 +53,7 @@ def main():
     img = cv2.imread("data/val_images/40000.png")
 
     augmented_images = augment_image(img)
+
     print(len(augmented_images))
     print(augmented_images[0].shape)
 
