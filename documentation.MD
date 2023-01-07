@@ -5,7 +5,13 @@
 
 ## Introduction
 
-The task at hand is to be able to perform three classification for any scan image. Each image has 3 binary labels associated with it.
+The task at hand is to be able to perform three classification for any scan image. Each image has 3 binary labels associated with it. 
+
+Classifying medical images is a problem most commonly dealed with by using convolutional neural networks, as an example can be seen in the paper of Yadav et al here: https://journalofbigdata.springeropen.com/articles/10.1186/s40537-019-0276-2. 
+
+The scores on the public leaderboard as well as the metrics chosen by myself for the training regime was F1 score. 
+
+There are also two primary ways in which this classification can be tackled: one single neural network with 3 classification downstream tasks and one with 3 different neural networks with 3 different training (for this project I went only for the latter one).
 
 ## Dataset Analysis
 
@@ -27,7 +33,8 @@ Some observations about the data:
   labelled 
   with both 
 zeroes and ones.
-- one quarter of the images are black (4985 out of 15.000). A removal of all black images except for one image was performed.
+- one quarter of the images are black (4985 out of 15.000). 
+- A removal of all black images except for one image was performed.
 
 ### Labels distribution
 
@@ -56,12 +63,15 @@ zeroes and ones.
 ![image info](arhitectures/conv_4.png)
 - 1.e
 ![image info](arhitectures/conv_5.png)
-- Convolution neural networks are different from vanilla fully connecte neural networks because of the convolutional and pooling layers. Convolutions work by sliding a filter (which must be smaller than the original image, otherwise we are performing a deconvolution instead of convolution) and when sliding the filter we are essentially multiply term by term the filter with a subimage of the original image and then we add it up (so essntially a scalar product that leads to downsizing the 
-  image in order to increase the amount of information contained per pixel in the image). These convolutions are then followed by max pooling operations which lead to choosing the maximal value of pixels from continuous subimages slided from the original image.
+- Convolution neural networks are different from vanilla fully connecte neural networks because of the convolutional and pooling layers. 
+- Convolutions work by sliding a filter (which must be smaller than the original image, otherwise we are performing a deconvolution instead of convolution) and when sliding the filter we are essentially multiply term by term the filter with a subimage of the original image and then we add it up (so essntially a scalar product that leads to downsizing the 
+  image in order to increase the amount of information contained per pixel in the image). 
+- These convolutions are then followed by max pooling operations which lead to choosing the maximal value of pixels from continuous subimages slided from the original image.
 
 ### 2. Recurrent neural network model. Only one architecture was tried out for this type of model.
 ![image info](arhitectures/recurrent_1.png)
-- Recurrent neural networks were developed as a need to model sequential data sampled as points in time, so generally speaking is less suitable for image and more appropriate for time series data. Long short term memory layers in an RNN are a particular type of rnn cell where each cell has the following gates: a forget one (which controls how much information is deleted onto the next cell), an input one (which control how much information is the cell receiving from the previous one), an 
+- Recurrent neural networks were developed as a need to model sequential data sampled as points in time, so generally speaking is less suitable for image and more appropriate for time series data. 
+- Long short term memory layers in an RNN are a particular type of rnn cell where each cell has the following gates: a forget one (which controls how much information is deleted onto the next cell), an input one (which control how much information is the cell receiving from the previous one), an 
   output one (which controls how much information is 'spitted out' to the next cell) and an modulation one (which controls how much information gets preprocessed).
 
 ### 3. Fully connected neural network model. Two architectures were tried out for this type of model:
@@ -69,7 +79,8 @@ zeroes and ones.
 ![image info](arhitectures/fully_connected_1.png)
 - 3.b
 ![image info](arhitectures/fully_connected_2.png)
-- Fully connected neural networks are models comprised of multiple layers of perceptrons alligned in deep depths in order to captures as many non-linearities as possible. There are many tweaks that can be done to this tpe of neural networks such as: dropout layers which drop neurons in order to increase the robustness of the network or batch-normalization to perform the normalization at batch level at an intermediary layer.
+- Fully connected neural networks are models comprised of multiple layers of perceptrons alligned in deep depths in order to captures as many non-linearities as possible. 
+- There are many tweaks that can be done to this tpe of neural networks such as: dropout layers which drop neurons in order to increase the robustness of the network or batch-normalization to perform the normalization at batch level at an intermediary layer.
 
 cnn 2 is also 89% smth, as rnn lstm is 89% smth as well
 
@@ -128,8 +139,6 @@ There were no substantial differeneces or improvement after performing augmentat
 - downsizing to (32, 32)
 - converting the images to float32 precision
 
-average precision per class on validation set with various models (tables/figures for these)
-
 ### Submitting
 In order to then create a submission file we call:
 - create_sample_submission() from main.py 
@@ -153,7 +162,11 @@ The experiments were mainly about experimenting with the three types of architec
 | -------- | --------------    |
 ## Future works
 
-A possible future wor could be to try out some other more advanced transformers based architectures or deeper architectures such as Efficient Net, VGG or AlexNet. Maybe some other augmentations could be tried out as well. Of course new sources of data could also improve the performance as the dataset at hand is quite small for a task where high performance can be obtained mostly with large convoluted neural networks. 
+A possible future wor could be to try out some other more advanced transformers based architectures or deeper architectures such as Efficient Net, VGG or AlexNet. 
+
+Maybe some other augmentations could be tried out as well. 
+
+Of course, new sources of data could also improve the performance as the dataset at hand is quite small for a task where high performance can be obtained mostly with large convoluted neural networks. 
 
 ## Conclusion
 
