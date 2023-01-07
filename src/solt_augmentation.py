@@ -1,14 +1,12 @@
 import matplotlib.pyplot as plt
-import solt
 import solt.transforms as slt
 
 import random
+import solt
 import cv2
 
 
-def augment_image(input_img):
-    # print("augmenting...")
-    # a = 1/0
+def augment_image(input_img, visualize: bool=False):
     h, w, c = input_img.shape
     img = input_img[:w]
 
@@ -36,14 +34,16 @@ def augment_image(input_img):
     for i in range(n_augs):
         img_aug = stream({'image': img}, return_torch=False, ).data[0].squeeze()
         augmented_images.append(img_aug)
-        # ax = fig.add_subplot(1, n_augs, i + 1)
-        # if i == 0:
-        #     ax.imshow(img)
-        # else:
-        #     ax.imshow(img_aug)
-        # ax.set_xticks([])
-        # ax.set_yticks([])
-    # plt.show()
+        if visualize:
+            ax = fig.add_subplot(1, n_augs, i + 1)
+            if i == 0:
+                ax.imshow(img)
+            else:
+                ax.imshow(img_aug)
+            ax.set_xticks([])
+            ax.set_yticks([])
+    if visualize:
+        plt.show()
 
     return augmented_images
 

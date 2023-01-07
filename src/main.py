@@ -1,50 +1,15 @@
-from typing import List
-from sklearn.metrics import accuracy_score, f1_score, average_precision_score
-from sklearn.svm import SVC
+from src.solt_augmentation import augment_image
+from src.train_neural_net import train_nn
 from matplotlib import pyplot as plt
 from collections import Counter
-from tqdm import tqdm
+from typing import List
 
 import pandas as pd
 import numpy as np
 
-import random
 import cv2
 import os
 
-import torch
-
-efficient_net_model = efn.EfficientNetB0(weights='imagenet')  # or weights='noisy-student'
-
-
-def efficient_net_fn(img=None):
-    # models can be build with Keras or Tensorflow frameworks
-    # use keras and tfkeras modules respectively
-    # efficientnet.keras / efficientnet.tfkeras
-
-    if img is None:
-        img = cv2.imread("data/train_images/10000.png")
-    resized_img = cv2.resize(img, dsize=(224, 224))
-    # print(resized_img.shape)
-    resized_img = np.reshape(resized_img, (1, 224, 224, 3))
-    output = efficient_net_model(resized_img)
-    # print(type(output))
-    # print(output.shape)
-    return output
-
-    # model use some custom objects, so before loading saved model
-    # import module your network was build with
-    # e.g. import efficientnet.keras / import efficientnet.tfkeras
-    # import efficientnet.tfkeras
-    # from tensorflow.keras.models import load_model
-    # model = load_model('path/to/model.h5')
-
-
-# efficient_net()
-
-# a = 1/0
-
-# OBSERVATION ------------ besides the 5000 black images, there is no other duplicate in the dataset
 def create_sample_submission(labels_1: List = None, labels_2: List = None, labels_3: List = None):
     if labels_1 is None:
         labels_1 = np.load(allow_pickle=True, file=f"data/y_pred_for_submission_1.npy")
@@ -53,7 +18,6 @@ def create_sample_submission(labels_1: List = None, labels_2: List = None, label
     if labels_3 is None:
         labels_3 = np.load(allow_pickle=True, file=f"data/y_pred_for_submission_3.npy")
     df = pd.read_csv("data/sample_submission.csv")
-    # id,label1,label2,label3
     for i in range(len(df)):
         df.at[i, "label1"] = labels_1[i]
         df.at[i, "label2"] = labels_2[i]
@@ -61,14 +25,12 @@ def create_sample_submission(labels_1: List = None, labels_2: List = None, label
     df.to_csv("good_submission.csv", index=False)
 
 
-from src.solt_augmentation import augment_image
-
-
-def load_images_from_folder(folder_path: str):
+def load_images_from_folder(folder_path: str, augment_images: bool = False):
     images = []
     num_channels = 1
-    train_labels_df = pd.read_csv("data/train_labels.csv")
-    val_labels_df = pd.read_csv("data/val_labels.csv")
+    if augment_images:
+        train_labels_df = pd.read_csv("data/train_labels.csv")
+        val_labels_df = pd.read_csv("data/val_labels.csv")
 
     for file in sorted(os.listdir(folder_path)):
         filepath = os.path.join(folder_path, file)
@@ -77,58 +39,64 @@ def load_images_from_folder(folder_path: str):
         if num_channels == 3:
             one_channel_image = cv2.cvtColor(one_channel_image, cv2.COLOR_GRAY2RGB)
         images.append(one_channel_image)
-        # if "test" in filepath:
-        #     continue
-        # augmented_images = augment_image(one_channel_image)
-        # indexes = [str(i) for i in range(1, len(augmented_images) + 1)]
-        # paths = [filepath[:filepath.rfind(".png")] + "_" + index + ".png" for index in indexes]
-        # for (augmented_path, augmented_image) in zip(paths, augmented_images):
-        #     cv2.imwrite(augmented_path, augmented_image)
-        #     images.append(augmented_image)
-        #     if "train" in filepath:
-        #         for j in range(len(train_labels_df)):
-        #             if train_labels_df.at[j, "id"] in filepath:
-        #                 label_1 = train_labels_df.at[j, "label1"]
-        #                 label_2 = train_labels_df.at[j, "label2"]
-        #                 label_3 = train_labels_df.at[j, "label3"]
-        #     if "val" in filepath:
-        #         for j in range(len(val_labels_df)):
-        #             if val_labels_df.at[j, "id"] in filepath:
-        #                 label_1 = val_labels_df.at[j, "label1"]
-        #                 label_2 = val_labels_df.at[j, "label2"]
-        #                 label_3 = val_labels_df.at[j, "label3"]
-        #     # print(filepath, augmented_path, train_labels_df.at[0, "id"])
-        #     new_row = {"id": augmented_path[augmented_path.rfind("/") + 1:],
-        #                 "label1": label_1,
-        #                 "label2": label_2,
-        #                 "label3": label_3}
-        #     if "train" in filepath:
-        #         train_labels_df_copy = train_labels_df.append(new_row, ignore_index=True)
-        #         train_labels_df = train_labels_df_copy
-        #     if "val" in filepath:
-        #         val_labels_df_copy = val_labels_df.append(new_row, ignore_index=True)
-        #         val_labels_df = val_labels_df_copy
-    # train_labels_df.to_csv("data/train_labels.csv")
-    # val_labels_df.to_csv("data/val_labels.csv")
+        if augment_images:
+            if "test" in filepath:
+                continue
+            augmented_images = augment_image(one_channel_image)
+            indexes = [str(i) for i in range(1, len(augmented_images) + 1)]
+            paths = [filepath[:filepath.rfind(".png")] + "_" + index + ".png" for index in indexes]
+            for (augmented_path, augmented_image) in zip(paths, augmented_images):
+                cv2.imwrite(augmented_path, augmented_image)
+                images.append(augmented_image)
+                if "train" in filepath:
+                    for j in range(len(train_labels_df)):
+                        if train_labels_df.at[j, "id"] in filepath:
+                            label_1 = train_labels_df.at[j, "label1"]
+                            label_2 = train_labels_df.at[j, "label2"]
+                            label_3 = train_labels_df.at[j, "label3"]
+                if "val" in filepath:
+                    for j in range(len(val_labels_df)):
+                        if val_labels_df.at[j, "id"] in filepath:
+                            label_1 = val_labels_df.at[j, "label1"]
+                            label_2 = val_labels_df.at[j, "label2"]
+                            label_3 = val_labels_df.at[j, "label3"]
+                new_row = {"id": augmented_path[augmented_path.rfind("/") + 1:],
+                            "label1": label_1,
+                            "label2": label_2,
+                            "label3": label_3}
+                if "train" in filepath:
+                    train_labels_df_copy = train_labels_df.append(new_row, ignore_index=True)
+                    train_labels_df = train_labels_df_copy
+                if "val" in filepath:
+                    val_labels_df_copy = val_labels_df.append(new_row, ignore_index=True)
+                    val_labels_df = val_labels_df_copy
+    if augment_images:
+        train_labels_df.to_csv("data/train_labels.csv")
+        val_labels_df.to_csv("data/val_labels.csv")
 
     return images
 
 
-def load_data():
+def load_data(resize_to_32px: bool = False, convert_to_float32: bool = False, normalize: bool = False):
     train_images = load_images_from_folder("data/train_images")
     val_images = load_images_from_folder("data/val_images")
     test_images = load_images_from_folder("data/test_images")
 
-    # TODO try out these preprocessing ideas!!!!!!!!!!!!!!!!!!!!!!!!!111
-    # # # building the input vector from the 32x32 pixels
-    # X_train = X_train.reshape(X_train.shape[0], 32, 32, 3)
-    # X_test = X_test.reshape(X_test.shape[0], 32, 32, 3)
-    # X_train = X_train.astype('float32')
-    # X_test = X_test.astype('float32')
-    #
-    # # normalizing the data to help with the training
-    # X_train /= 255
-    # X_test /= 255
+    if resize_to_32px:
+        train_images = train_images.reshape(train_images.shape[0], 32, 32, 3)
+        val_images = val_images.reshape(val_images.shape[0], 32, 32, 3)
+        test_images = test_images.reshape(test_images.shape[0], 32, 32, 3)
+
+    if convert_to_float32:
+        train_images = train_images.astype('float32')
+        val_images = val_images.astype('float32')
+        test_images = test_images.astype('float32')
+
+    if normalize:
+        # normalizing the data to help with the training
+        train_images /= 255
+        val_images /= 255
+        test_images /= 255
 
     return train_images, val_images, test_images
 
@@ -138,27 +106,6 @@ def load_labels():
     val_labels = pd.read_csv("data/val_labels.csv")
     return train_labels, val_labels
 
-
-def train_model(X_train, y_train, X_val, y_val, X_test, label):
-    print(len(X_train), len(y_train), len(X_val), len(y_val))
-    model = SVC(class_weight="balanced")
-    print("PRE FIT")
-    model.fit(X_train, y_train)
-    del X_train
-    del y_train
-    print("POST FIT")
-    y_pred = model.predict(X_val)
-    del X_val
-    print(f1_score(y_pred, y_val))
-    del y_pred
-    del y_val
-    y_pred_for_submission = model.predict(X_test)
-    del X_test
-    del model
-    np.save(allow_pickle=True, arr=y_pred_for_submission, file=f"data/y_pred_for_submission_{label}.npy")
-    return y_pred_for_submission
-
-
 def plot_average_image(all_images, all_labels):
     neg_images = [image for (image, label) in zip(all_images, all_labels) if label == 0]
     pos_images = [image for (image, label) in zip(all_images, all_labels) if label == 1]
@@ -166,44 +113,54 @@ def plot_average_image(all_images, all_labels):
     avg_neg_image = np.mean(np.array(neg_images))
     avg_pos_image = np.mean(np.array(pos_images))
 
-    plt.imshow(avg_pos_image, cmap='gray')  # , vmin=0, vmax=255)
+    plt.imshow(avg_pos_image, cmap='gray')
     plt.title("average with label 1 image")
     plt.show()
 
-    plt.imshow(avg_neg_image, cmap='gray')  # , vmin=0, vmax=255)
+    plt.imshow(avg_neg_image, cmap='gray')
     plt.title("average with label 0 image")
     plt.show()
 
     difference_images = avg_pos_image - avg_neg_image
 
-    plt.imshow(difference_images, cmap='gray')  # , vmin=0, vmax=255)
+    plt.imshow(difference_images, cmap='gray')
     plt.title("difference between average label 1 image and average label 0 image")
     plt.show()
 
     print("Difference between images value:", np.mean(difference_images))
 
 
-from src.train_neural_net import train_nn
+def keep_one_black_image(images, labels_1, labels_2, labels_3):
+    first_time = True
+    to_remove = []
+    first_idx = None
+    for i, (img, label) in enumerate(zip(images, labels_1)):
+        img_sum = img.sum()
+        if first_time is False and img_sum == 0:
+            to_remove.append(i)
+            images.pop(i)
+            labels_1.pop(i)
+            labels_2.pop(i)
+            labels_3.pop(i)
+        if img_sum == 0:
+            first_idx = i
+            first_time = False
+    labels_1[first_idx] = 0
+    labels_2[first_idx] = 0
+    labels_3[first_idx] = 0
+
+    return images, labels_1, labels_2, labels_3
 
 
-# TODO cut second and third dimensions, keep just the first one since they are identical, so that will
-# be a (64, 64, 1) instead of (64, 64, 3)
+def get_class_weight(labels):
+    cnt = Counter(labels)
+    return {0: cnt[0], 1: cnt[1]}
+
+
 def main():
     train_images, val_images, test_images = load_data()
 
-    train_val_images = train_images + val_images
-
-    # train_images = [tuple(img.flatten().tolist()) for img in train_images if img.sum() !=0]
-    # val_images = [tuple(img.flatten().tolist()) for img in val_images if img.sum() != 0]
-    # test_images = [tuple(img.flatten().tolist()) for img in test_images if img.sum() != 0]
-    #
-    # print(len(train_images), len(set(train_images)))
-    # print(len(val_images), len(set(val_images)))
-    # print(len(test_images), len(set(test_images)))
-    # a = 1/0
-
     train_labels, val_labels = load_labels()
-    train_val_labels = train_labels + val_labels
 
     train_labels_1, train_labels_2, train_labels_3 = train_labels["label1"].to_list(), \
         train_labels["label2"].to_list(), \
@@ -213,135 +170,13 @@ def main():
         val_labels["label2"].to_list(), \
         val_labels["label3"].to_list()
 
-    def keep_one_black_image(images, labels_1, labels_2, labels_3):
-        first_time = True
-        to_remove = []
-        first_idx = None
-        for i, (img, label) in enumerate(zip(images, labels_1)):
-            img_sum = img.sum()
-            if first_time is False and img_sum == 0:
-                to_remove.append(i)
-                images.pop(i)
-                labels_1.pop(i)
-                labels_2.pop(i)
-                labels_3.pop(i)
-            if img_sum == 0:
-                first_idx = i
-                first_time = False
-        labels_1[first_idx] = 0
-        labels_2[first_idx] = 0
-        labels_3[first_idx] = 0
-        # for idx in to_remove:
-        #     images.pop(idx)
-        #     labels.pop(idx)
-        return images, labels_1, labels_2, labels_3
+    # train_images, train_labels_1, train_labels_2, train_labels_3 = keep_one_black_image(train_images, train_labels_1, train_labels_2, train_labels_3)
+    # val_images, val_labels_1, val_labels_2, val_labels_3 = keep_one_black_image(val_images, val_labels_1, val_labels_2, val_labels_3)
 
-    train_images, train_labels_1, train_labels_2, train_labels_3 = keep_one_black_image(train_images, train_labels_1, train_labels_2, train_labels_3)
-
-    # train_images, train_labels_2 = keep_one_black_image(train_images, train_labels_2)
-    # train_images, train_labels_3 = keep_one_black_image(train_images, train_labels_3)
-    # train_images, train_labels_2 = keep_one_black_image(train_images, train_labels_2)
-    # train_images, train_labels_1 = keep_one_black_image(train_images, train_labels_1)
-
-    val_images, val_labels_1, val_labels_2, val_labels_3 = keep_one_black_image(val_images, val_labels_1, val_labels_2, val_labels_3)
-
-    # val_images, val_labels_1 = keep_one_black_image(val_images, val_labels_1)
-    # val_images, val_labels_2 = keep_one_black_image(val_images, val_labels_2)
-    # val_images, val_labels_3 = keep_one_black_image(val_images, val_labels_3)
-
-    # train_val_labels_1, train_val_labels_2, train_val_labels_3 = train_labels_1 + val_labels_1, \
-    #                                                              train_labels_2 + val_labels_2, \
-    #                                                              train_labels_3 + val_labels_3
-
-    # bad_labelled_1 = {0: 0, 1: 0}
-    # bad_labelled_2 = {0: 0, 1: 0}
-    # bad_labelled_3 = {0: 0, 1: 0}
-    #
-    # for (img, l_1, l_2, l_3) in zip(train_val_images, train_val_labels_1, train_val_labels_2, train_val_labels_3):
-    #     if img.sum() == 0:
-    #         # print(l_1, l_2, l_3)
-    #         if l_1 == 0:
-    #             bad_labelled_1[0] += 1
-    #         elif l_1 == 1:
-    #             bad_labelled_1[1] += 1
-    #         else:
-    #             raise Exception("1")
-    #
-    #         if l_2 == 0:
-    #             bad_labelled_2[0] += 1
-    #         elif l_2 == 1:
-    #             bad_labelled_2[1] += 1
-    #         else:
-    #             raise Exception("2")
-    #
-    #         if l_3 == 0:
-    #             bad_labelled_3[0] += 1
-    #         elif l_3 == 1:
-    #             bad_labelled_3[1] += 1
-    #         else:
-    #             raise Exception("3")
-    #
-    # print("Bad labelled black images:")
-    # print("Feature no. 1: ", bad_labelled_1)
-    # print("Feature no. 2: ", bad_labelled_2)
-    # print("Feature no. 3: ", bad_labelled_3)
-
-    """
-    if black -> 0,0,0
-    else: sample weights on training for non black images and 
-    """
-
-    # TOOD make a set out of all the black images and give them the 0 label
-    # from tqdm import tqdm
-    # in_train_and_val = 0
-    # for img in tqdm(val_images):
-    #     if img.sum() != 0:
-    #         for img_ in test_images:
-    #             # if img_.sum() != 0:
-    #             if np.array_equal(img, img_):
-    #                 in_train_and_val += 1
-    #
-    # print("Common images in train and val: ", in_train_and_val)
-    # a = 1 / 0
-
-    def get_class_weight(labels):
-        cnt = Counter(labels)
-        return {0: cnt[0], 1: cnt[1]}
-
-    X_train = np.array(train_images)
-    X_test = np.array(val_images)
-
-    X_submission = np.array(test_images)
     num_classes = 2
     model_name = "vanilla"
 
-    # a = 1/0
-    # train_images = [efficient_net_fn(train_image) for train_image in tqdm(train_images)]
-    # train_images = np.array(train_images)
-    # train_images = np.load(file="eff_net_train.npy", allow_pickle=True)
-    # train_images = train_images.reshape(train_images.shape[0], train_images.shape[2])
-    #
-    # print(train_images.shape)
-    # np.save(file="eff_net_train.npy", arr=train_images, allow_pickle=True)
-
-    # val_images = [efficient_net_fn(val_image) for val_image in tqdm(val_images)]
-    # val_images = np.array(val_images)
-    # val_images = np.load(file="eff_net_val.npy", allow_pickle=True)
-    # val_images = val_images.reshape(val_images.shape[0], val_images.shape[2])
-    # print(val_images.shape)
-
-    # np.save(file="eff_net_val.npy", arr=val_images, allow_pickle=True)
-
-    # test_images = [efficient_net_fn(test_image) for test_image in tqdm(test_images)]
-    # test_images = np.array(test_images)
-    # test_images = np.load(file="eff_net_test.npy", allow_pickle=True)
-    # test_images = test_images.reshape(test_images.shape[0], test_images.shape[2])
-    #
-    # print(test_images.shape)
-
-    # X_train = np.concatenate((train_images, val_images), axis=0)
     X_train = np.array(train_images)
-    # X_val = val_images
     X_test = np.array(val_images)
     X_submission = np.array(test_images)
 
@@ -354,21 +189,15 @@ def main():
     class_weight = get_class_weight(train_labels_1)
     labels_1, logging_metrics_list_1 = train_nn(X_train, y_train, X_test, y_test, model_name, num_classes, X_submission, class_weight)
 
-    np.save(allow_pickle=True, arr=labels_1, file=f"data/y_pred_for_submission_ann_over_effnet_embs.npy")
-
     y_train = np.array(train_labels_2)
     y_test = np.array(val_labels_2)
     class_weight = get_class_weight(train_labels_3)
     labels_2, logging_metrics_list_2 = train_nn(X_train, y_train, X_test, y_test, model_name, num_classes, X_submission, class_weight)
 
-    np.save(allow_pickle=True, arr=labels_2, file=f"data/y_pred_for_submission_ann_over_effnet_embs.npy")
-
     y_train = np.array(train_labels_3)
     y_test = np.array(val_labels_3)
     class_weight = get_class_weight(train_labels_3)
     labels_3, logging_metrics_list_3 = train_nn(X_train, y_train, X_test, y_test, model_name, num_classes, X_submission, class_weight)
-
-    np.save(allow_pickle=True, arr=labels_3, file=f"data/y_pred_for_submission_ann_over_effnet_embs.npy")
 
     create_sample_submission(labels_1, labels_2, labels_3)
 
@@ -379,30 +208,6 @@ def main():
         print("Final F1:", res)
         print("F1" * 20)
 
-    # a = 1/0
-
-    # np.save(file="eff_net_test.npy", arr=test_images, allow_pickle=True)
-
-    # train_images = [train_image.flatten() for train_image in train_images]
-    # val_images = [val_image.flatten() for val_image in val_images]
-    # test_images = [test_image.flatten() for test_image in test_images]
-
-    # labels_1 = train_model(X_train=train_images, y_train=train_labels_1, X_val=val_images, y_val=val_labels_1,
-    #                        X_test=test_images, label="122_effnet")
-    # labels_2 = train_model(X_train=train_images, y_train=train_labels_2, X_val=val_images, y_val=val_labels_2,
-    #                        X_test=test_images, label="222_effnet")
-    # labels_3 = train_model(X_train=train_images, y_train=train_labels_3, X_val=val_images, y_val=val_labels_3,
-    #                        X_test=test_images, label="322_effnet")
-
-    create_sample_submission(labels_1, labels_2, labels_3)
-
-
-"""
-TODO: ideas for neural nets:
-https://towardsdatascience.com/train-a-neural-network-to-detect-breast-mri-tumors-with-pytorch-250a02be7777
-https://www.projectpro.io/article/deep-learning-for-image-classification-in-python-with-cnn/418
-https://ecode.dev/cnn-for-medical-imaging-using-tensorflow-2/
-"""
 
 if __name__ == '__main__':
     main()

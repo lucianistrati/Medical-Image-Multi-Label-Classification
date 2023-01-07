@@ -9,9 +9,8 @@ from collections import Counter
 
 def main():
     train_images, val_images, test_images = load_data()
-
+    print(len(train_images), len(val_images), len(test_images))
     train_labels, val_labels = load_labels()
-    train_val_labels = train_labels + val_labels
 
     train_labels_1, train_labels_2, train_labels_3 = train_labels["label1"].to_list(), \
         train_labels["label2"].to_list(), \

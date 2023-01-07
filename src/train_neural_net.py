@@ -1,17 +1,18 @@
+from sklearn.metrics import confusion_matrix, accuracy_score, classification_report, f1_score, precision_score, \
+    recall_score, average_precision_score
 from tensorflow.keras.callbacks import EarlyStopping, ReduceLROnPlateau
-import tensorflow as tf
+from sklearn.utils import check_array
+
 import tensorflow_addons as tfa
 import matplotlib.pyplot as plt
-from sklearn.metrics import average_precision_score
+import tensorflow as tf
 import numpy as np
-from sklearn.metrics import confusion_matrix, accuracy_score, classification_report
-from sklearn.metrics import f1_score, precision_score, recall_score
-from sklearn.utils import check_array
 
 
 def empty_classif_loggings():
     return [['F1', 0.0], ['Accuracy', 0.0], ['Normalized_confusion_matrix',
-                                             0.0]]
+                                             0.0], ["Precision", 0.0], ["average_precision_score", 0.0],
+            ["Recall", 0.0]]
 
 
 def mean_absolute_percentage_error(y_true, y_pred):
@@ -216,7 +217,7 @@ def plot_metric(history, metric_name, model_name):
     plt.show()
 
 
-def get_conv_classifier(num_classes, activation_fn, input_shape, option: int=1):
+def get_conv_classifier(num_classes, activation_fn, input_shape, option: int = 1):
     """
     https://www.projectpro.io/article/deep-learning-for-image-classification-in-python-with-cnn/418
     to be tryed out TODO!!!!!!!!111 BUT THERE ARE PICS WITH code, not code
@@ -233,31 +234,28 @@ def get_conv_classifier(num_classes, activation_fn, input_shape, option: int=1):
         model.add(tf.keras.layers.Dense(num_classes, activation=activation_fn))
     elif option == 2:
         # https://www.analyticsvidhya.com/blog/2020/02/learn-image-classification-cnn-convolutional-neural-networks-3-datasets/
-        # cnn 2 is also 89% smth, as rnn lstm is 89% smth as well
         model.add(tf.keras.layers.InputLayer(input_shape=input_shape))
 
-        # 1st conv block
         model.add(tf.keras.layers.Conv2D(25, (5, 5), activation='relu', strides=(1, 1), padding='same'))
         model.add(tf.keras.layers.MaxPool2D(pool_size=(2, 2), padding='same'))
-        # 2nd conv block
+
         model.add(tf.keras.layers.Conv2D(50, (5, 5), activation='relu', strides=(2, 2), padding='same'))
         model.add(tf.keras.layers.MaxPool2D(pool_size=(2, 2), padding='same'))
         model.add(tf.keras.layers.BatchNormalization())
-        # 3rd conv block
+
         model.add(tf.keras.layers.Conv2D(70, (3, 3), activation='relu', strides=(2, 2), padding='same'))
         model.add(tf.keras.layers.MaxPool2D(pool_size=(2, 2), padding='valid'))
         model.add(tf.keras.layers.BatchNormalization())
-        # ANN block
+
         model.add(tf.keras.layers.Flatten())
         model.add(tf.keras.layers.Dense(units=100, activation='relu'))
         model.add(tf.keras.layers.Dense(units=100, activation='relu'))
         model.add(tf.keras.layers.Dropout(0.25))
-        # output layer
+
         model.add(tf.keras.layers.Dense(units=2, activation='softmax'))
     elif option == 3:
         model.add(tf.keras.layers.Conv2D(50, kernel_size=(3, 3), strides=(1, 1), padding='same', activation='relu', input_shape=input_shape))
 
-        # convolutional layer
         model.add(tf.keras.layers.Conv2D(75, kernel_size=(3, 3), strides=(1, 1), padding='same', activation='relu'))
         model.add(tf.keras.layers.MaxPool2D(pool_size=(2, 2)))
         model.add(tf.keras.layers.Dropout(0.25))
@@ -266,15 +264,13 @@ def get_conv_classifier(num_classes, activation_fn, input_shape, option: int=1):
         model.add(tf.keras.layers.MaxPool2D(pool_size=(2, 2)))
         model.add(tf.keras.layers.Dropout(0.25))
 
-        # flatten output of conv
         model.add(tf.keras.layers.Flatten())
 
-        # hidden layer
         model.add(tf.keras.layers.Dense(500, activation='relu'))
         model.add(tf.keras.layers.Dropout(0.4))
         model.add(tf.keras.layers.Dense(250, activation='relu'))
         model.add(tf.keras.layers.Dropout(0.3))
-        # output layer
+
         model.add(tf.keras.layers.Dense(2, activation='softmax'))
     elif option == 4:
         # https://www.geeksforgeeks.org/image-classifier-using-cnn/
@@ -288,14 +284,12 @@ def get_conv_classifier(num_classes, activation_fn, input_shape, option: int=1):
         model.add(tf.keras.layers.Dense(2, activation='softmax'))
     elif option == 5:
         # https://www.learndatasci.com/tutorials/convolutional-neural-networks-image-classification/
-        ### Input Layer ####
         model.add(tf.keras.layers.Conv2D(filters=32, kernel_size=(3, 3), padding='same',
-                         activation='relu', input_shape=input_shape))
+                                         activation='relu', input_shape=input_shape))
 
-        ### Convolutional Layers ####
         model.add(tf.keras.layers.Conv2D(32, (3, 3), activation='relu'))
-        model.add(tf.keras.layers.MaxPooling2D((2, 2)))  # Pooling
-        model.add(tf.keras.layers.Dropout(0.2))  # Dropout
+        model.add(tf.keras.layers.MaxPooling2D((2, 2)))
+        model.add(tf.keras.layers.Dropout(0.2))
 
         model.add(tf.keras.layers.Conv2D(64, (3, 3), padding='same', activation='relu'))
         model.add(tf.keras.layers.Conv2D(64, (3, 3), activation='relu'))
@@ -314,7 +308,6 @@ def get_conv_classifier(num_classes, activation_fn, input_shape, option: int=1):
         model.add(tf.keras.layers.MaxPooling2D((4, 4), padding="same"))
         model.add(tf.keras.layers.Dropout(0.2))
 
-        #### Fully-Connected Layer ####
         model.add(tf.keras.layers.Flatten())
         model.add(tf.keras.layers.Dense(1024, activation='relu'))
         model.add(tf.keras.layers.Dropout(0.2))
@@ -323,59 +316,35 @@ def get_conv_classifier(num_classes, activation_fn, input_shape, option: int=1):
     return model
 
 
-def get_fully_connected_classifier(num_classes, activation_fn, input_shape=None):
+def get_fully_connected_classifier(num_classes, activation_fn, input_shape=None, option: int = 1):
     classifier = tf.keras.models.Sequential()
-    classifier.add(tf.keras.layers.Dense(256, activation='relu', input_shape=input_shape))
-    classifier.add(tf.keras.layers.Dense(256, activation='relu'))
-    # # classifier.add(tf.keras.layers.Dense(256, input_shape=X_test[0].shape, activation="relu"))
-    # # classifier.add(tf.keras.layers.Dense(256, activation="relu"))
-    classifier.add(tf.keras.layers.Dense(num_classes, activation=activation_fn))
 
-    # model2.add(Flatten(input_shape=(7, 7, 512)))
-    # model2.add(Dense(100, activation='relu'))
-    # model2.add(Dropout(0.5))
-    # model2.add(BatchNormalization())
-    # model2.add(Dense(10, activation='softmax'))
+    if option == 1:
+        classifier.add(tf.keras.layers.Dense(256, activation='relu', input_shape=input_shape))
+        classifier.add(tf.keras.layers.Dense(256, activation='relu'))
+        # classifier.add(tf.keras.layers.Dense(256, input_shape=X_test[0].shape, activation="relu"))
+        # classifier.add(tf.keras.layers.Dense(256, activation="relu"))
+        classifier.add(tf.keras.layers.Dense(num_classes, activation=activation_fn))
+    elif option == 2:
+        classifier.add(tf.keras.layers.Dense(256, input_shape=input_shape))
+        classifier.add(tf.keras.layers.Dense(100, activation='relu'))
+        classifier.add(tf.keras.layers.Dropout(0.5))
+        classifier.add(tf.keras.layers.BatchNormalization())
+        classifier.add(tf.keras.layers.Dense(2, activation='softmax'))
 
     return classifier
 
 
-def get_recurrent_classifier(num_classes, activation_fn, input_shape=None):
-    #
-    # for i in range(len(X_train)):
-    #     X_train[i] = X_train[i].reshape((1, X_train[0].shape[0], 1))
-    #
-    # for i in range(len(X_validation)):
-    #     X_validation[i] = X_validation[i].reshape((1, X_validation[0].shape[0],
-    #                                                1))
+def get_recurrent_classifier(num_classes, input_shape=None):
     classifier = tf.keras.models.Sequential()
     classifier.add(tf.keras.layers.LSTM(128, input_shape=input_shape,
                                         return_sequences=True))
     classifier.add(tf.keras.layers.LSTM(128, return_sequences=True))
     classifier.add(tf.keras.layers.Flatten())
     classifier.add(tf.keras.layers.Dense(64, activation="relu"))
-    classifier.add(tf.keras.layers.Dense(2, activation="softmax"))
+    classifier.add(tf.keras.layers.Dense(num_classes, activation="softmax"))
 
     return classifier
-
-
-def get_model_design_1(filters: list, input_shape: tuple):
-    model = tf.keras.models.Sequential([tf.keras.layers.Conv2D(filters[0], (5, 5), padding='same',
-                                                               kernel_regularizer=tf.keras.regularizers.L2(0.001),
-                                                               activation="relu", input_shape=input_shape),
-                                        tf.keras.layers.Conv2D(filters[1], (3, 3), padding='same',
-                                                               kernel_regularizer=tf.keras.regularizers.L2(0.001),
-                                                               activation="relu"),
-                                        tf.keras.layers.MaxPool2D(pool_size=(2, 2)),
-                                        tf.keras.layers.BatchNormalization(),
-                                        tf.keras.layers.Flatten(),
-                                        tf.keras.layers.Dropout(0.5),
-                                        tf.keras.layers.Dense(2,
-                                                              kernel_initializer=tf.keras.initializers.GlorotNormal(),
-                                                              activation="softmax")
-                                        ])
-
-    return model
 
 
 def normalize_img(img):
@@ -384,8 +353,8 @@ def normalize_img(img):
 
 def train_nn(X_train, y_train, X_test, y_test, model_name, num_classes=2, X_submission=None, class_weight=None):
     early_stopping = EarlyStopping(
-        patience=5,  # how many epochs to wait before stopping
-        min_delta=0.001,  # minimium amount of change to count as an improvement
+        patience=5,
+        min_delta=0.001,
         restore_best_weights=True,
     )
 
@@ -395,26 +364,13 @@ def train_nn(X_train, y_train, X_test, y_test, model_name, num_classes=2, X_subm
         min_lr=0.001,
     )
 
-    # TODO try to train in a multi-labels classif way with keras, or pytorch if not possible with keras, perhaps it
-    # will learn better in this multimodal format (since the classification might be related one with another
-    # oooor, maybe do: first classification, then use that prediction for the second classification and then use the
-    # first and the third to also produce the fourth
-    # try to visualize data in 2D/3D
+    n_epochs = [5, 10]
+    learning_rate = [1e-3, 1e-2, 1e-1]
 
-    n_epochs = 10  # TODO adapt
-    learning_rate = 1e-3  # TODO adapt
-
-    # if num_classes > 1:
     y_train = tf.keras.utils.to_categorical(y_train, num_classes)
     y_test = tf.keras.utils.to_categorical(y_test, num_classes)
 
-    activation_fn = "linear"
-    activation_fn = "softmax"
-    activation_fn = "sigmoid"
-    # TODO adapt, maybe sigmoid instead of softmax since there are two classes and is not multi class
-
-    # filters = [128, 64]
-    # classifier = get_model_design_1(filters, X_train[0].shape)
+    activation_fn = ["sigmoid", "softmax", "linear"][0]
 
     option = ["conv", "recurrent", "fully_connected"][0]
 
@@ -424,42 +380,31 @@ def train_nn(X_train, y_train, X_test, y_test, model_name, num_classes=2, X_subm
         input_shape = (X_train[0].shape)
         classifier = get_conv_classifier(num_classes, activation_fn, input_shape)
     elif option == "recurrent":
-        print(X_train.shape, X_test.shape)
         X_train = X_train.reshape((X_train.shape[0], X_train.shape[1], X_train.shape[2]))
-        # X_validation = X_validation.reshape(
-        #     (X_validation.shape[0], X_validation.shape[1], 1))
         X_test = X_test.reshape((X_test.shape[0], X_test.shape[1], X_test.shape[2]))
-        print(X_train.shape, X_test.shape, "$$$$")
         input_shape = (X_train[0].shape)
-        classifier = get_recurrent_classifier(num_classes, activation_fn, input_shape)
+        classifier = get_recurrent_classifier(num_classes, input_shape)
     elif option == "fully_connected":
         input_shape = (X_train[0].shape)
         classifier = get_fully_connected_classifier(num_classes, activation_fn, input_shape)
     else:
         raise Exception("Wrong option!")
 
-    adam_opt = tf.keras.optimizers.Adam(lr=learning_rate)
-    sgd_opt = tf.keras.optimizers.SGD(lr=learning_rate)
-    opt = adam_opt
+    opt = [tf.keras.optimizers.Adam(lr=learning_rate), tf.keras.optimizers.SGD(lr=learning_rate)][0]
 
-    # loss_function = tf.keras.losses.CategoricalCrossentropy()
-    loss_function = tf.keras.losses.BinaryCrossentropy()
+    loss_function = [tf.keras.losses.BinaryCrossentropy(), tf.keras.losses.CategoricalCrossentropy()][0]
 
-    # metrics_function = 'accuracy'
-    metrics_function = tfa.metrics.F1Score(num_classes=2)
+    metrics_function = [tfa.metrics.F1Score(num_classes=2), "accuracy"][0]
 
     classifier.compile(optimizer=opt, loss=loss_function, metrics=[metrics_function])
 
     validation_option = [None, "split", "data"][1]
-    validation_split = 0.1  # 0.1 -> 1.5k out of 15k OR 0.07 -> 1k out of 15k
-    # (we basically win 1500 new datapoints or 2000 new datapoints or alltogether 3000 datapoints)
+    validation_split = 0.1
     validation_data = (X_test, y_test)
 
     if validation_option == "split":
         X_train = np.concatenate((X_train, X_test))
         y_train = np.concatenate((y_train, y_test))
-
-    print(X_train.shape, y_train.shape)
 
     if class_weight is not None:
         if validation_option is None:
@@ -537,8 +482,3 @@ def train_nn(X_train, y_train, X_test, y_test, model_name, num_classes=2, X_subm
         y_submission = np.argmax(y_submission, axis=-1)
 
     return y_submission, logging_metrics_list
-
-
-if __name__ == '__main__':
-    pass
-    # main()
