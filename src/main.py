@@ -12,7 +12,6 @@ import random
 import cv2
 import os
 
-import efficientnet.keras as efn
 import torch
 
 efficient_net_model = efn.EfficientNetB0(weights='imagenet')  # or weights='noisy-student'
@@ -184,7 +183,6 @@ def plot_average_image(all_images, all_labels):
     print("Difference between images value:", np.mean(difference_images))
 
 
-
 from src.train_neural_net import train_nn
 
 
@@ -208,12 +206,12 @@ def main():
     train_val_labels = train_labels + val_labels
 
     train_labels_1, train_labels_2, train_labels_3 = train_labels["label1"].to_list(), \
-                                                     train_labels["label2"].to_list(), \
-                                                     train_labels["label3"].to_list()
+        train_labels["label2"].to_list(), \
+        train_labels["label3"].to_list()
 
     val_labels_1, val_labels_2, val_labels_3 = val_labels["label1"].to_list(), \
-                                               val_labels["label2"].to_list(), \
-                                               val_labels["label3"].to_list()
+        val_labels["label2"].to_list(), \
+        val_labels["label3"].to_list()
 
     def keep_one_black_image(images, labels_1, labels_2, labels_3):
         first_time = True
@@ -292,6 +290,7 @@ def main():
     if black -> 0,0,0
     else: sample weights on training for non black images and 
     """
+
     # TOOD make a set out of all the black images and give them the 0 label
     # from tqdm import tqdm
     # in_train_and_val = 0
@@ -396,6 +395,7 @@ def main():
     #                        X_test=test_images, label="322_effnet")
 
     create_sample_submission(labels_1, labels_2, labels_3)
+
 
 """
 TODO: ideas for neural nets:

@@ -1,27 +1,12 @@
-# from heat_map import plot_heatmap
 from tensorflow.keras.callbacks import EarlyStopping, ReduceLROnPlateau
-import numpy as np
-import numpy as np
-import random
 import tensorflow as tf
 import tensorflow_addons as tfa
 import matplotlib.pyplot as plt
-import pdb
-# from tensorflow.data import Dataset
-from sklearn.metrics import f1_score, precision_score, recall_score, \
-    mean_squared_error, mean_absolute_error, r2_score, average_precision_score
-from sklearn.metrics import confusion_matrix, accuracy_score, \
-    classification_report
-from sklearn.utils import check_array
-from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import average_precision_score
 import numpy as np
-from sklearn.metrics import matthews_corrcoef
 from sklearn.metrics import confusion_matrix, accuracy_score, classification_report
-from sklearn.metrics import f1_score, precision_score, recall_score, \
-    mean_squared_error, mean_absolute_error, r2_score
-from sklearn.model_selection import train_test_split
+from sklearn.metrics import f1_score, precision_score, recall_score
 from sklearn.utils import check_array
-from statistics import mean
 
 
 def empty_classif_loggings():
@@ -136,65 +121,40 @@ def get_classif_perf_metrics(y_test, y_pred, model_name="",
     number_of_classes = num_classes
     print("NUM CLASSES", number_of_classes)
 
-    if number_of_classes == 2:
-        for i in range(len(logging_metrics_list)):
-            if logging_metrics_list[i][0] == 'Accuracy':
-                logging_metrics_list[i][1] = str(accuracy_score(y_test, y_pred))
-            elif logging_metrics_list[i][0] == 'Precision':
-                logging_metrics_list[i][1] = str(precision_score(y_test,
-                                                                 y_pred))
-            elif logging_metrics_list[i][0] == 'Recall':
-                logging_metrics_list[i][1] = str(recall_score(y_test, y_pred))
-            elif logging_metrics_list[i][0] == 'F1':
-                logging_metrics_list[i][1] = str(f1_score(y_test, y_pred,
-                                                          average='weighted'))
-        print("Accuracy: " + str(round(accuracy_score(y_test, y_pred), 2)))
-        print("Precision: " + str(precision_score(y_test, y_pred,
-                                                  average='weighted')))
-        print("Recall: " + str(recall_score(y_test, y_pred,
-                                            average='weighted')))
-    else:
-        for i in range(len(logging_metrics_list)):
-            if logging_metrics_list[i][0] == 'Accuracy':
-                logging_metrics_list[i][1] = str(accuracy_score(y_test, y_pred))
-            elif logging_metrics_list[i][0] == 'Precision':
-                logging_metrics_list[i][1] = str(precision_score(y_test,
-                                                                 y_pred))
-            elif logging_metrics_list[i][0] == 'Recall':
-                logging_metrics_list[i][1] = str(recall_score(y_test, y_pred))
-            elif logging_metrics_list[i][0] == 'F1':
-                logging_metrics_list[i][1] = str(f1_score(y_test, y_pred,
-                                                          average='weighted'))
-            elif logging_metrics_list[i][0] == 'Classification_report':
-                logging_metrics_list[i][1] = str(
-                    classification_report(y_test, y_pred, digits=2))
-
-        print("Accuracy: " + str(round(accuracy_score(y_test, y_pred), 2)))
-        print("Precision: " + str(precision_score(y_test, y_pred,
-                                                  average='weighted')))
-        print("Recall: " + str(recall_score(y_test, y_pred,
-                                            average='weighted')))
-
-        print("Classification report: \n" + str(
-            classification_report(y_test, y_pred, digits=2)))
+    for i in range(len(logging_metrics_list)):
+        if logging_metrics_list[i][0] == 'Accuracy':
+            logging_metrics_list[i][1] = str(accuracy_score(y_test, y_pred))
+        elif logging_metrics_list[i][0] == 'Precision':
+            logging_metrics_list[i][1] = str(precision_score(y_test,
+                                                             y_pred))
+        elif logging_metrics_list[i][0] == 'Recall':
+            logging_metrics_list[i][1] = str(recall_score(y_test, y_pred))
+        elif logging_metrics_list[i][0] == 'F1':
+            logging_metrics_list[i][1] = str(f1_score(y_test, y_pred,
+                                                      average='weighted'))
+    print("Accuracy: " + str(round(accuracy_score(y_test, y_pred), 2)))
+    print("Precision: " + str(precision_score(y_test, y_pred,
+                                              average='weighted')))
+    print("Recall: " + str(recall_score(y_test, y_pred,
+                                        average='weighted')))
 
     C = confusion_matrix(y_test, y_pred)
-    if number_of_classes <= 3:
-        print("Confusion matrix:\n", C)
-        print("Normalized confusion matrix:\n",
-              np.around(C / C.astype(np.float).sum(axis=1), decimals=2))
 
-        for i in range(len(logging_metrics_list)):
-            if logging_metrics_list[i][0] == 'Confusion_matrix':
-                logging_metrics_list[i][1] = np.array2string(np.around(C,
-                                                                       decimals=2),
-                                                             precision=2,
-                                                             separator=',',
-                                                             suppress_small=True)
-            elif logging_metrics_list[i][0] == 'Normalized_confusion_matrix':
-                logging_metrics_list[i][1] = np.array2string(np.around(C / C.astype(np.float).sum(axis=1),
-                                                                       decimals=2), precision=2,
-                                                             separator=',', suppress_small=True)
+    print("Confusion matrix:\n", C)
+    print("Normalized confusion matrix:\n",
+          np.around(C / C.astype(np.float).sum(axis=1), decimals=2))
+
+    for i in range(len(logging_metrics_list)):
+        if logging_metrics_list[i][0] == 'Confusion_matrix':
+            logging_metrics_list[i][1] = np.array2string(np.around(C,
+                                                                   decimals=2),
+                                                         precision=2,
+                                                         separator=',',
+                                                         suppress_small=True)
+        elif logging_metrics_list[i][0] == 'Normalized_confusion_matrix':
+            logging_metrics_list[i][1] = np.array2string(np.around(C / C.astype(np.float).sum(axis=1),
+                                                                   decimals=2), precision=2,
+                                                         separator=',', suppress_small=True)
 
     return logging_metrics_list
 
@@ -256,139 +216,109 @@ def plot_metric(history, metric_name, model_name):
     plt.show()
 
 
-# def prepare_data(x_train, y_train, x_val, y_val, x_test, y_test):
-#     # from tensorflow.data import Dataset
-#     train_ds = Dataset.from_tensor_slices((x_train, y_train))
-#     validation_ds = Dataset.from_tensor_slices((x_val, y_val))
-#     test_ds = Dataset.from_tensor_slices((x_test, y_test))
-#
-#     return train_ds, validation_ds, test_ds
-
-
-def get_conv_classifier(num_classes, activation_fn, input_shape):
+def get_conv_classifier(num_classes, activation_fn, input_shape, option: int=1):
     """
     https://www.projectpro.io/article/deep-learning-for-image-classification-in-python-with-cnn/418
     to be tryed out TODO!!!!!!!!111 BUT THERE ARE PICS WITH code, not code
     """
     model = tf.keras.models.Sequential()
 
-    # initial cnn
-    # classifier.add(tf.keras.layers.Conv2D(256, (3, 3), activation='relu', input_shape=(64, 64, 1)))
-    # classifier.add(tf.keras.layers.MaxPool2D(3, 3))
-    # # classifier.add(tf.keras.layers.Conv2D(48, (2, 2), activation='relu'))
-    # # classifier.add(tf.keras.layers.MaxPool2D(2, 2))
-    # classifier.add(tf.keras.layers.Flatten())
-    # classifier.add(tf.keras.layers.Dense(256, activation='relu'))
-    # # # classifier.add(tf.keras.layers.Dense(256, input_shape=X_test[0].shape, activation="relu"))
-    # # # classifier.add(tf.keras.layers.Dense(256, activation="relu"))
-    # classifier.add(tf.keras.layers.Dense(num_classes, activation=activation_fn))
+    if option == 1:
+        model.add(tf.keras.layers.Conv2D(256, (3, 3), activation='relu', input_shape=(64, 64, 1)))
+        model.add(tf.keras.layers.MaxPool2D(3, 3))
+        # classifier.add(tf.keras.layers.Conv2D(48, (2, 2), activation='relu'))
+        # classifier.add(tf.keras.layers.MaxPool2D(2, 2))
+        model.add(tf.keras.layers.Flatten())
+        model.add(tf.keras.layers.Dense(256, activation='relu'))
+        model.add(tf.keras.layers.Dense(num_classes, activation=activation_fn))
+    elif option == 2:
+        # https://www.analyticsvidhya.com/blog/2020/02/learn-image-classification-cnn-convolutional-neural-networks-3-datasets/
+        # cnn 2 is also 89% smth, as rnn lstm is 89% smth as well
+        model.add(tf.keras.layers.InputLayer(input_shape=input_shape))
 
-    # cnn 2 - https://www.analyticsvidhya.com/blog/2020/02/learn-image-classification-cnn-convolutional-neural-networks-3-datasets/
-    # cnn 2 is also 89% smth, as rnn lstm is 89% smth as well
-    # model.add(tf.keras.layers.InputLayer(input_shape=input_shape))
-    #
-    # # 1st conv block
-    # model.add(tf.keras.layers.Conv2D(25, (5, 5), activation='relu', strides=(1, 1), padding='same'))
-    # model.add(tf.keras.layers.MaxPool2D(pool_size=(2, 2), padding='same'))
-    # # 2nd conv block
-    # model.add(tf.keras.layers.Conv2D(50, (5, 5), activation='relu', strides=(2, 2), padding='same'))
-    # model.add(tf.keras.layers.MaxPool2D(pool_size=(2, 2), padding='same'))
-    # model.add(tf.keras.layers.BatchNormalization())
-    # # 3rd conv block
-    # model.add(tf.keras.layers.Conv2D(70, (3, 3), activation='relu', strides=(2, 2), padding='same'))
-    # model.add(tf.keras.layers.MaxPool2D(pool_size=(2, 2), padding='valid'))
-    # model.add(tf.keras.layers.BatchNormalization())
-    # # ANN block
-    # model.add(tf.keras.layers.Flatten())
-    # model.add(tf.keras.layers.Dense(units=100, activation='relu'))
-    # model.add(tf.keras.layers.Dense(units=100, activation='relu'))
-    # model.add(tf.keras.layers.Dropout(0.25))
-    # # output layer
-    # model.add(tf.keras.layers.Dense(units=2, activation='softmax'))
+        # 1st conv block
+        model.add(tf.keras.layers.Conv2D(25, (5, 5), activation='relu', strides=(1, 1), padding='same'))
+        model.add(tf.keras.layers.MaxPool2D(pool_size=(2, 2), padding='same'))
+        # 2nd conv block
+        model.add(tf.keras.layers.Conv2D(50, (5, 5), activation='relu', strides=(2, 2), padding='same'))
+        model.add(tf.keras.layers.MaxPool2D(pool_size=(2, 2), padding='same'))
+        model.add(tf.keras.layers.BatchNormalization())
+        # 3rd conv block
+        model.add(tf.keras.layers.Conv2D(70, (3, 3), activation='relu', strides=(2, 2), padding='same'))
+        model.add(tf.keras.layers.MaxPool2D(pool_size=(2, 2), padding='valid'))
+        model.add(tf.keras.layers.BatchNormalization())
+        # ANN block
+        model.add(tf.keras.layers.Flatten())
+        model.add(tf.keras.layers.Dense(units=100, activation='relu'))
+        model.add(tf.keras.layers.Dense(units=100, activation='relu'))
+        model.add(tf.keras.layers.Dropout(0.25))
+        # output layer
+        model.add(tf.keras.layers.Dense(units=2, activation='softmax'))
+    elif option == 3:
+        model.add(tf.keras.layers.Conv2D(50, kernel_size=(3, 3), strides=(1, 1), padding='same', activation='relu', input_shape=input_shape))
 
-    # from keras.applications import VGG16
-    #
-    # # include top should be False to remove the softmax layer
-    # pretrained_model = VGG16(include_top=False, weights='imagenet')
-    # pretrained_model.summary()
+        # convolutional layer
+        model.add(tf.keras.layers.Conv2D(75, kernel_size=(3, 3), strides=(1, 1), padding='same', activation='relu'))
+        model.add(tf.keras.layers.MaxPool2D(pool_size=(2, 2)))
+        model.add(tf.keras.layers.Dropout(0.25))
 
-    # cnn-3
-    # model.add(tf.keras.layers.Conv2D(50, kernel_size=(3, 3), strides=(1, 1), padding='same', activation='relu', input_shape=input_shape))
-    #
-    # # convolutional layer
-    # model.add(tf.keras.layers.Conv2D(75, kernel_size=(3, 3), strides=(1, 1), padding='same', activation='relu'))
-    # model.add(tf.keras.layers.MaxPool2D(pool_size=(2, 2)))
-    # model.add(tf.keras.layers.Dropout(0.25))
-    #
-    # model.add(tf.keras.layers.Conv2D(125, kernel_size=(3, 3), strides=(1, 1), padding='same', activation='relu'))
-    # model.add(tf.keras.layers.MaxPool2D(pool_size=(2, 2)))
-    # model.add(tf.keras.layers.Dropout(0.25))
-    #
-    # # flatten output of conv
-    # model.add(tf.keras.layers.Flatten())
-    #
-    # # hidden layer
-    # model.add(tf.keras.layers.Dense(500, activation='relu'))
-    # model.add(tf.keras.layers.Dropout(0.4))
-    # model.add(tf.keras.layers.Dense(250, activation='relu'))
-    # model.add(tf.keras.layers.Dropout(0.3))
-    # # output layer
-    # model.add(tf.keras.layers.Dense(2, activation='softmax'))
-    #
+        model.add(tf.keras.layers.Conv2D(125, kernel_size=(3, 3), strides=(1, 1), padding='same', activation='relu'))
+        model.add(tf.keras.layers.MaxPool2D(pool_size=(2, 2)))
+        model.add(tf.keras.layers.Dropout(0.25))
 
-    # https://www.guru99.com/convnet-tensorflow-image-classification.html -> TODO to be tried out if everything else fails
+        # flatten output of conv
+        model.add(tf.keras.layers.Flatten())
 
-    # CNN-4
-    # https://www.geeksforgeeks.org/image-classifier-using-cnn/
-    # model.add(tf.keras.layers.input_data(shape=input_shape, name='input'))
-    model.add(tf.keras.layers.Conv2D(32, kernel_size=(5, 5), activation='relu', input_shape=input_shape))
-    model.add(tf.keras.layers.MaxPool2D(5))
-    model.add(tf.keras.layers.Conv2D(64, kernel_size=(5, 5), activation='relu'))
-    model.add(tf.keras.layers.MaxPool2D(5))
-    # model.add(tf.keras.layers.Conv2D(128, kernel_size=(5, 5), activation='relu'))
-    # model.add(tf.keras.layers.MaxPool2D(5))
-    # model.add(tf.keras.layers.Conv2D(64, kernel_size=(5, 5), activation='relu'))
-    # model.add(tf.keras.layers.MaxPool2D(5))
-    # model.add(tf.keras.layers.Conv2D(32, kernel_size=(5, 5), activation='relu'))
-    # model.add(tf.keras.layers.MaxPool2D(5))
-    model.add(tf.keras.layers.Flatten())
-    model.add(tf.keras.layers.Dense(1024, activation='relu'))
-    model.add(tf.keras.layers.Dropout(0.8))
-    model.add(tf.keras.layers.Dense(2, activation='softmax'))
+        # hidden layer
+        model.add(tf.keras.layers.Dense(500, activation='relu'))
+        model.add(tf.keras.layers.Dropout(0.4))
+        model.add(tf.keras.layers.Dense(250, activation='relu'))
+        model.add(tf.keras.layers.Dropout(0.3))
+        # output layer
+        model.add(tf.keras.layers.Dense(2, activation='softmax'))
+    elif option == 4:
+        # https://www.geeksforgeeks.org/image-classifier-using-cnn/
+        model.add(tf.keras.layers.Conv2D(32, kernel_size=(5, 5), activation='relu', input_shape=input_shape))
+        model.add(tf.keras.layers.MaxPool2D(5))
+        model.add(tf.keras.layers.Conv2D(64, kernel_size=(5, 5), activation='relu'))
+        model.add(tf.keras.layers.MaxPool2D(5))
+        model.add(tf.keras.layers.Flatten())
+        model.add(tf.keras.layers.Dense(1024, activation='relu'))
+        model.add(tf.keras.layers.Dropout(0.8))
+        model.add(tf.keras.layers.Dense(2, activation='softmax'))
+    elif option == 5:
+        # https://www.learndatasci.com/tutorials/convolutional-neural-networks-image-classification/
+        ### Input Layer ####
+        model.add(tf.keras.layers.Conv2D(filters=32, kernel_size=(3, 3), padding='same',
+                         activation='relu', input_shape=input_shape))
 
-    # cnn-5
-    # https://www.learndatasci.com/tutorials/convolutional-neural-networks-image-classification/
-    #### Input Layer ####
-    # model.add(tf.keras.layers.Conv2D(filters=32, kernel_size=(3, 3), padding='same',
-    #                  activation='relu', input_shape=input_shape))
-    # 
-    # ### Convolutional Layers ####
-    # model.add(tf.keras.layers.Conv2D(32, (3, 3), activation='relu'))
-    # model.add(tf.keras.layers.MaxPooling2D((2, 2)))  # Pooling
-    # model.add(tf.keras.layers.Dropout(0.2))  # Dropout
-    # 
-    # model.add(tf.keras.layers.Conv2D(64, (3, 3), padding='same', activation='relu'))
-    # model.add(tf.keras.layers.Conv2D(64, (3, 3), activation='relu'))
-    # model.add(tf.keras.layers.MaxPooling2D((2, 2)))
-    # model.add(tf.keras.layers.Dropout(0.2))
-    # 
-    # model.add(tf.keras.layers.Conv2D(128, (3, 3), padding='same', activation='relu'))
-    # model.add(tf.keras.layers.Conv2D(128, (3, 3), activation='relu'))
-    # model.add(tf.keras.layers.Activation('relu'))
-    # model.add(tf.keras.layers.MaxPooling2D((2, 2)))
-    # model.add(tf.keras.layers.Dropout(0.2))
-    # 
-    # model.add(tf.keras.layers.Conv2D(512, (5, 5), padding='same', activation='relu'))
-    # model.add(tf.keras.layers.Conv2D(512, (5, 5), activation='relu'))
-    # 
-    # model.add(tf.keras.layers.MaxPooling2D((4, 4), padding="same"))
-    # model.add(tf.keras.layers.Dropout(0.2))
-    # 
-    # #### Fully-Connected Layer ####
-    # model.add(tf.keras.layers.Flatten())
-    # model.add(tf.keras.layers.Dense(1024, activation='relu'))
-    # model.add(tf.keras.layers.Dropout(0.2))
-    # model.add(tf.keras.layers.Dense(2, activation='softmax'))
+        ### Convolutional Layers ####
+        model.add(tf.keras.layers.Conv2D(32, (3, 3), activation='relu'))
+        model.add(tf.keras.layers.MaxPooling2D((2, 2)))  # Pooling
+        model.add(tf.keras.layers.Dropout(0.2))  # Dropout
+
+        model.add(tf.keras.layers.Conv2D(64, (3, 3), padding='same', activation='relu'))
+        model.add(tf.keras.layers.Conv2D(64, (3, 3), activation='relu'))
+        model.add(tf.keras.layers.MaxPooling2D((2, 2)))
+        model.add(tf.keras.layers.Dropout(0.2))
+
+        model.add(tf.keras.layers.Conv2D(128, (3, 3), padding='same', activation='relu'))
+        model.add(tf.keras.layers.Conv2D(128, (3, 3), activation='relu'))
+        model.add(tf.keras.layers.Activation('relu'))
+        model.add(tf.keras.layers.MaxPooling2D((2, 2)))
+        model.add(tf.keras.layers.Dropout(0.2))
+
+        model.add(tf.keras.layers.Conv2D(512, (5, 5), padding='same', activation='relu'))
+        model.add(tf.keras.layers.Conv2D(512, (5, 5), activation='relu'))
+
+        model.add(tf.keras.layers.MaxPooling2D((4, 4), padding="same"))
+        model.add(tf.keras.layers.Dropout(0.2))
+
+        #### Fully-Connected Layer ####
+        model.add(tf.keras.layers.Flatten())
+        model.add(tf.keras.layers.Dense(1024, activation='relu'))
+        model.add(tf.keras.layers.Dropout(0.2))
+        model.add(tf.keras.layers.Dense(2, activation='softmax'))
 
     return model
 

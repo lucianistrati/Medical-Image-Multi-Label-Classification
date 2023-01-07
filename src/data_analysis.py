@@ -1,5 +1,6 @@
 from src.main import load_data, load_labels
 import matplotlib.pyplot as plt
+
 plt.rcdefaults()
 import numpy as np
 import matplotlib.pyplot as plt
@@ -13,12 +14,12 @@ def main():
     train_val_labels = train_labels + val_labels
 
     train_labels_1, train_labels_2, train_labels_3 = train_labels["label1"].to_list(), \
-                                                     train_labels["label2"].to_list(), \
-                                                     train_labels["label3"].to_list()
+        train_labels["label2"].to_list(), \
+        train_labels["label3"].to_list()
 
     val_labels_1, val_labels_2, val_labels_3 = val_labels["label1"].to_list(), \
-                                               val_labels["label2"].to_list(), \
-                                               val_labels["label3"].to_list()
+        val_labels["label2"].to_list(), \
+        val_labels["label3"].to_list()
 
     for cls in [0, 1, 2]:
         for type_of_set in ["validation", "training"]:

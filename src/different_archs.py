@@ -67,7 +67,7 @@ def vit_base_32_224_21k(image=None, feature_extractor=None):
         feature_extractor = ViTFeatureExtractor.from_pretrained('google/vit-base-patch32-224-in21k')
 
     inputs = feature_extractor(images=image, return_tensors="pt")
-    
+
     # print(inputs["pixel_values"].shape)
 
     return inputs["pixel_values"]
@@ -149,7 +149,6 @@ def main():
 
     feature_extractor = None
     load_feature_extractor = True
-
 
     # Killed
     # if load_feature_extractor:
