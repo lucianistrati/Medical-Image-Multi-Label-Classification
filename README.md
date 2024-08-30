@@ -188,4 +188,3 @@ https://www.analyticsvidhya.com/blog/2022/03/basics-of-cnn-in-deep-learning/
 https://medium.com/analytics-vidhya/understanding-neural-networks-from-neuron-to-rnn-cnn-and-deep-learning-cd88e90e0a90
 https://www.analyticsvidhya.com/blog/2022/01/convolutional-neural-networkcnn/
 
-[![Stand With Ukraine](https://raw.githubusercontent.com/vshymanskyy/StandWithUkraine/main/banner2-direct.svg)](https://stand-with-ukraine.pp.ua)
